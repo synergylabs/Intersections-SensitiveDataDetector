@@ -2,9 +2,7 @@ package capstone.sdd.core;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,36 +14,11 @@ import java.util.concurrent.Executors;
 public class PIIScanner {
 	
 	// Settings
-	private String start_path;
-	private boolean scan_sub_repo = true;
-	private Set<String> supported_files = new HashSet<>();
+	private Settings settings = Settings.getInstance();
 	
 	private final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
 	private final ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
-	
-	public PIIScanner(String start_path){
-		this.start_path = start_path;
-	}
-	
-	
-	/**
-	 * A series of set method to set the setting of scan
-	 */
-	public void setStartPath(String start_path) {
-		this.start_path = start_path;
-	}
-	
-	public void setSubRepo(boolean flag) {
-		scan_sub_repo = flag;
-	}
-	
-	/**
-	 * A method to add supported file type to scanner, scanner will only scanner those supported type
-	 * @param suffix the type of files like .pdf, .txt etc
-	 */
-	public void addSupportedType(String suffix) {
-		supported_files.add(suffix);
-	}
+
 	
 	/**
 	 * A method to scan the device from the start_path
@@ -53,8 +26,8 @@ public class PIIScanner {
 	 */
 	public List<File> scan(){
 		List<File> list = new ArrayList<>();
-//		scanHelper(list, new File(start_path));
-		pool.submit(new ScanWorker(new File(start_path)));
+//		scanHelper(list, settings.getStart_folder());
+		pool.submit(new ScanWorker(settings.getStart_folder()));
 		return list;
 	}
 	
@@ -73,11 +46,11 @@ public class PIIScanner {
 				}
 					
 				if (file.isDirectory()) {
-					if (scan_sub_repo) {
+					if (settings.isScan_sub_repo()) {
 						scanHelper(list, file);
 					}
 				} else{
-					if (isSupported(file)) {
+					if (settings.isSupported(file)) {
 						System.out.println(file.getName());
 						list.add(file);
 					}
@@ -88,27 +61,6 @@ public class PIIScanner {
 		}
 	}
 	
-	
-	/**
-	 * A method to check whether the current file is supported by parser
-	 * @param file the current file
-	 * @return true the file can be parsed
-	 * 		   false the file cannot be parsed
-	 */
-	private boolean isSupported(File file) {
-		String name = file.getName();
-		
-		if (supported_files.isEmpty()) {	// By default, all the file type are supported
-			return true;
-		}
-		
-		for (String suffix : supported_files) {
-			if (name.contains(suffix)) {
-				return true;
-			}
-		}
-		return false;
-	}
 	
 	
 	private class ScanWorker implements Callable<List<File>> {
@@ -130,11 +82,11 @@ public class PIIScanner {
 				}
 					
 				if (file.isDirectory()) {
-					if (scan_sub_repo) {
-						pool.submit(new ScanWorker(file));
+					if (settings.isScan_sub_repo()) {
+						scanHelper(list, file);
 					}
 				} else{
-					if (isSupported(file)) {
+					if (settings.isSupported(file)) {
 						System.out.println(file.getName());
 						list.add(file);
 					}
@@ -147,9 +99,11 @@ public class PIIScanner {
 	
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
-		PIIScanner scanner = new PIIScanner("/");
-		scanner.addSupportedType(".txt");
-//		scanner.setSubRepo(false);
+		PIIScanner scanner = new PIIScanner();
+		Settings settings = Settings.getInstance();
+		settings.addSupported_file("txt");
+		settings.setStart_folder("/Users/lieyongzou/Documents");
+		
 		System.out.println(scanner.scan().size());
 		long end = System.currentTimeMillis();
 		System.out.println(end - start);
