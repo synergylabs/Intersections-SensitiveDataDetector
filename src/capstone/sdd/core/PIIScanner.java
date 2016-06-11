@@ -61,9 +61,14 @@ public class PIIScanner {
 		}
 	}
 	
-	
-	
-	private class ScanWorker implements Callable<List<File>> {
+
+	/**
+	 * A nested worker to execute scan task for each folder
+	 * Once get the supported file, parse the match task to match worker
+	 * @author lieyongzou
+	 *
+	 */
+	private class ScanWorker implements Callable<Void> {
 		
 		private File folder;
 		
@@ -72,8 +77,7 @@ public class PIIScanner {
 		}
 
 		@Override
-		public List<File> call() throws Exception {
-			List<File> list = new ArrayList<>();
+		public Void call() throws Exception {
 			
 			File[] files = folder.listFiles();
 			for (File file : files) {
@@ -83,16 +87,16 @@ public class PIIScanner {
 					
 				if (file.isDirectory()) {
 					if (settings.isScan_sub_repo()) {
-						scanHelper(list, file);
+						pool.submit(new ScanWorker(file));
 					}
 				} else{
 					if (settings.isSupported(file)) {
 						System.out.println(file.getName());
-						list.add(file);
 					}
 				}
 			}
-			return list;
+			
+			return null;
 		}
 		
 	}
@@ -102,7 +106,7 @@ public class PIIScanner {
 		PIIScanner scanner = new PIIScanner();
 		Settings settings = Settings.getInstance();
 		settings.addSupported_file("txt");
-		settings.setStart_folder("/Users/lieyongzou/Documents");
+		settings.setStart_folder("/Users/lieyongzou");
 		
 		System.out.println(scanner.scan().size());
 		long end = System.currentTimeMillis();
