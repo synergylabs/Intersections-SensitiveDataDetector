@@ -37,8 +37,8 @@ public class Settings {
 		return start_folder;
 	}
 
-	public void setStart_folder(File start_folder) {
-		this.start_folder = start_folder;
+	public void setStart_folder(String start_path) {
+		this.start_folder = new File(start_path);
 	}
 
 	public boolean isScan_sub_repo() {
@@ -49,8 +49,15 @@ public class Settings {
 		this.scan_sub_repo = scan_sub_repo;
 	}
 
-	public List<String> getSupported_file() {
-		return supported_file;
+//	public List<String> getSupported_file() {
+//		return supported_file;
+//	}
+	
+	public boolean isSupported(File file) {
+		int index = file.getName().lastIndexOf('.');
+		String suffix = file.getName().substring(index + 1);
+		
+		return supported_file.contains(suffix);
 	}
 
 	public void addSupported_file(String suffix) {
