@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A class to scan the whole device
@@ -15,8 +18,10 @@ public class PIIScanner {
 	// Settings
 	private String start_path;
 	private boolean scan_sub_repo = true;
-	
 	private Set<String> supported_files = new HashSet<>();
+	
+	private final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
+	private final ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
 	
 	public PIIScanner(String start_path){
 		this.start_path = start_path;
@@ -48,7 +53,8 @@ public class PIIScanner {
 	 */
 	public List<File> scan(){
 		List<File> list = new ArrayList<>();
-		scanHelper(list, new File(start_path));
+//		scanHelper(list, new File(start_path));
+		pool.submit(new ScanWorker(new File(start_path)));
 		return list;
 	}
 	
@@ -58,24 +64,27 @@ public class PIIScanner {
 	 * @param folder the folder
 	 */
 	private void scanHelper(List<File> list, File folder){
-		
-		if (folder.isFile()) {
-			list.add(folder);
-			return;
-		}
-		
-		File[] files = folder.listFiles();
-		for (File file : files) {
-			if (file.isFile()) {
-				if (isSupported(file)) {
-					list.add(file);
+
+		try {
+			File[] files = folder.listFiles();
+			for (File file : files) {
+				if (file == null) {
+					continue;
 				}
-				
-			} else{
-				if (scan_sub_repo) {
-					scanHelper(list, file);
+					
+				if (file.isDirectory()) {
+					if (scan_sub_repo) {
+						scanHelper(list, file);
+					}
+				} else{
+					if (isSupported(file)) {
+						System.out.println(file.getName());
+						list.add(file);
+					}
 				}
 			}
+		} catch(Exception e) {
+			System.out.println(folder.getAbsolutePath());
 		}
 	}
 	
@@ -102,9 +111,47 @@ public class PIIScanner {
 	}
 	
 	
+	private class ScanWorker implements Callable<List<File>> {
+		
+		private File folder;
+		
+		public ScanWorker(File folder) {
+			this.folder = folder;
+		}
+
+		@Override
+		public List<File> call() throws Exception {
+			List<File> list = new ArrayList<>();
+			
+			File[] files = folder.listFiles();
+			for (File file : files) {
+				if (file == null) {
+					continue;
+				}
+					
+				if (file.isDirectory()) {
+					if (scan_sub_repo) {
+						pool.submit(new ScanWorker(file));
+					}
+				} else{
+					if (isSupported(file)) {
+						System.out.println(file.getName());
+						list.add(file);
+					}
+				}
+			}
+			return list;
+		}
+		
+	}
+	
 	public static void main(String[] args) {
-		PIIScanner scanner = new PIIScanner("/Users/lieyongzou/Downloads");
-		scanner.addSupportedType(".pdf");
-		System.out.println(scanner.scan());
+		long start = System.currentTimeMillis();
+		PIIScanner scanner = new PIIScanner("/");
+		scanner.addSupportedType(".txt");
+//		scanner.setSubRepo(false);
+		System.out.println(scanner.scan().size());
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
 	}
 }
