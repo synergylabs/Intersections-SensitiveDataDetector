@@ -12,11 +12,26 @@ import java.util.Set;
  */
 public class PIIScanner {
 	
+	// Settings
 	private String start_path;
+	private boolean scan_sub_repo = true;
+	
 	private Set<String> supported_files = new HashSet<>();
 	
 	public PIIScanner(String start_path){
 		this.start_path = start_path;
+	}
+	
+	
+	/**
+	 * A series of set method to set the setting of scan
+	 */
+	public void setStartPath(String start_path) {
+		this.start_path = start_path;
+	}
+	
+	public void setSubRepo(boolean flag) {
+		scan_sub_repo = flag;
 	}
 	
 	/**
@@ -57,7 +72,9 @@ public class PIIScanner {
 				}
 				
 			} else{
-				scanHelper(list, file);
+				if (scan_sub_repo) {
+					scanHelper(list, file);
+				}
 			}
 		}
 	}
@@ -71,6 +88,11 @@ public class PIIScanner {
 	 */
 	private boolean isSupported(File file) {
 		String name = file.getName();
+		
+		if (supported_files.isEmpty()) {	// By default, all the file type are supported
+			return true;
+		}
+		
 		for (String suffix : supported_files) {
 			if (name.contains(suffix)) {
 				return true;
@@ -82,7 +104,7 @@ public class PIIScanner {
 	
 	public static void main(String[] args) {
 		PIIScanner scanner = new PIIScanner("/Users/lieyongzou/Downloads");
-		scanner.addSupportedType(".txt");
+		scanner.addSupportedType(".pdf");
 		System.out.println(scanner.scan());
 	}
 }
