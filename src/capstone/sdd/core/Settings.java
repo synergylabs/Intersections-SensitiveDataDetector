@@ -1,8 +1,8 @@
 package capstone.sdd.core;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A class store all the settings of scanner
@@ -12,8 +12,8 @@ public class Settings {
 	
 	private File start_folder;
 	private boolean scan_sub_repo;
-	private List<String> supported_file = new ArrayList<>();
-	private List<String> patterns = new ArrayList<>();
+	private Set<String> supported_file = new HashSet<>();
+	private Set<String> patterns = new HashSet<>();
 	
 	private static Settings instance = null;
 	
@@ -64,11 +64,16 @@ public class Settings {
 	}
 	
 	
+	// Regix pattern
 	public void addPattern(String pattern) {
 		patterns.add(pattern);
 	}
 	
 	public void removePattern(String pattern) {
 		patterns.remove(pattern);
+	}
+	
+	public Set<String> getPatterns() {
+		return new HashSet<>(patterns);
 	}
 }
