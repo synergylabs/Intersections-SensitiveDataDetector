@@ -12,7 +12,8 @@ public class Settings {
 	
 	private File start_folder;
 	private boolean scan_sub_repo;
-	private List<String> supported_file;
+	private List<String> supported_file = new ArrayList<>();
+	private List<String> patterns = new ArrayList<>();
 	
 	private static Settings instance = null;
 	
@@ -20,7 +21,6 @@ public class Settings {
 		if (instance == null) {
 			instance = new Settings();
 		}
-		
 		return instance;
 	}
 	
@@ -30,7 +30,6 @@ public class Settings {
 	private Settings() {
 		start_folder = new File("/");
 		scan_sub_repo = true;
-		supported_file = new ArrayList<>();
 	}
 
 	public File getStart_folder() {
@@ -62,5 +61,14 @@ public class Settings {
 
 	public void addSupported_file(String suffix) {
 		this.supported_file.add(suffix);
+	}
+	
+	
+	public void addPattern(String pattern) {
+		patterns.add(pattern);
+	}
+	
+	public void removePattern(String pattern) {
+		patterns.remove(pattern);
 	}
 }
