@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A class to scan the whole device
@@ -91,7 +93,7 @@ public class PIIScanner {
 					}
 				} else{
 					if (settings.isSupported(file)) {
-						System.out.println(file.getName());
+						pool.submit(new MatchWorker(file)); 	// send the file to match worker to match
 					}
 				}
 			}
@@ -102,14 +104,15 @@ public class PIIScanner {
 	}
 	
 	public static void main(String[] args) {
-		long start = System.currentTimeMillis();
 		PIIScanner scanner = new PIIScanner();
+		
 		Settings settings = Settings.getInstance();
 		settings.addSupported_file("txt");
-		settings.setStart_folder("/Users/lieyongzou");
+		settings.addPattern("(\\d{3}-\\d{2}-\\d{4})");
+		settings.setStart_folder("/Users/lieyongzou/Downloads");
+//		settings.setScan_sub_repo(false);
 		
-		System.out.println(scanner.scan().size());
-		long end = System.currentTimeMillis();
-		System.out.println(end - start);
+		scanner.scan();
+		
 	}
 }

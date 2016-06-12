@@ -27,7 +27,7 @@ public class TxtParser implements Parser {
 			
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Lack of permission");
 		}
 		
 		return sb.toString();
