@@ -11,10 +11,14 @@ public class ParserFactory {
 		type = type.toLowerCase();
 		
 		switch(type) {
-		case "txt":
-			return new TxtParser();
-		default:
-			throw new UnsupportedOperationException();
+			case "txt":
+				return new TxtParser();
+
+			case "doc":
+				return new DocParser();
+
+			default:
+				throw new UnsupportedOperationException();
 		}
 	}
 	
