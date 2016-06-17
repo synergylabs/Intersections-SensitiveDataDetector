@@ -31,10 +31,4 @@ public class DocParser implements Parser {
         return content.toString();
     }
 
-    public static void main(String[] args) {
-        Parser parser = new DocParser();
-        File file = new File("/Users/lieyongzou/Documents/word.docx");
-        System.out.println(parser.parse(file));
-    }
-
 }
