@@ -17,6 +17,12 @@ public class ParserFactory {
 			case "doc":
 				return new DocParser();
 
+			case "docx":
+				return new DocxParser();
+
+			case "pdf":
+				return new PdfParser();
+
 			default:
 				throw new UnsupportedOperationException();
 		}
