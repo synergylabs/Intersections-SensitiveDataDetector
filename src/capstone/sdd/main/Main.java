@@ -1,15 +1,13 @@
 package capstone.sdd.main;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import capstone.sdd.core.ScanWorker;
 import capstone.sdd.core.Settings;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import capstone.sdd.gui.MainFrame;
+
+import javax.swing.*;
 
 
 public class Main {
@@ -26,15 +24,18 @@ public class Main {
 		settings.addSupported_file("txt");
 		settings.addSupported_file("docx");
 		settings.addSupported_file("doc");
+		settings.addSupported_file("pdf");
 		settings.setScan_sub_repo(false);
-		settings.addPattern("(\\d{3}-\\d{2}-\\d{4})");
+
+		settings.addPattern("ssn", "(\\d{3}-\\d{2}-\\d{4})");
+		settings.addPattern("credit card", "4[0-9]{12}(?:[0-9]{3})?");
+		settings.addPattern("credit card", "4[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}");
 		settings.setStart_folder("/Users/lieyongzou/Documents");
 
 		// Start scan
 		pool.submit(new ScanWorker(settings.getStart_folder(), pool));
 
 //		SwingUtilities.invokeLater(() -> new MainFrame());
-
 	}
 
 }

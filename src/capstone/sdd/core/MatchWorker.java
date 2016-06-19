@@ -4,6 +4,8 @@
 package capstone.sdd.core;
 
 import java.io.File;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,14 +39,21 @@ public class MatchWorker implements Callable<Void> {
 		String content = parser.parse(file);
 		
 		// Get a list patterns need to match
-		for (String pattern : Settings.getInstance().getPatterns()) {
-			Pattern p = Pattern.compile(pattern);
-			Matcher m = p.matcher(content);
-			
-			if (m.find()) {
-				System.out.println(m.group(0));
-				System.out.println(file.getAbsolutePath());
+		for (Map.Entry<String, Set<String>> entry : Settings.getInstance().getPatterns().entrySet()) {
+
+			// Match the patterns in set
+			for (String pattern : entry.getValue()) {
+				Pattern p = Pattern.compile(pattern);
+				Matcher m = p.matcher(content);
+
+				if (m.find()) {
+					System.out.println(entry.getKey() + ":" + m.group(0));
+					System.out.println(file.getAbsolutePath());
+				}
 			}
+
+			
+
 		}
 		
 		return null;

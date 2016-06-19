@@ -26,7 +26,7 @@ public class DocParser implements Parser {
             }
 
         } catch(Exception e) {
-            e.printStackTrace();
+            System.out.println(file.getAbsolutePath());
         }
         return content.toString();
     }

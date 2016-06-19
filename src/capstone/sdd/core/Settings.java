@@ -1,7 +1,9 @@
 package capstone.sdd.core;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -13,7 +15,7 @@ public class Settings {
 	private File start_folder;
 	private boolean scan_sub_repo;
 	private Set<String> supported_file = new HashSet<>();
-	private Set<String> patterns = new HashSet<>();
+	private Map<String, Set<String>> patterns = new HashMap<>();
 	
 	private static Settings instance = null;
 	
@@ -65,15 +67,22 @@ public class Settings {
 	
 	
 	// Regix pattern
-	public void addPattern(String pattern) {
-		patterns.add(pattern);
+	public void addPattern(String name, String pattern) {
+		if (!patterns.containsKey(name)) {
+			patterns.put(name, new HashSet<>());
+		}
+		patterns.get(name).add(pattern);
 	}
 	
-	public void removePattern(String pattern) {
-		patterns.remove(pattern);
+	public void removePattern(String name, String pattern) {
+		patterns.get(name).remove(pattern);
+	}
+
+	public void removePattern(String name) {
+		patterns.remove(name);
 	}
 	
-	public Set<String> getPatterns() {
-		return new HashSet<>(patterns);
+	public Map<String, Set<String>> getPatterns() {
+		return patterns;
 	}
 }

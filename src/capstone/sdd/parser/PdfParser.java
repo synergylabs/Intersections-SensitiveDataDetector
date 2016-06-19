@@ -28,7 +28,7 @@ public class PdfParser implements Parser {
             }
 
         } catch(IOException e) {
-            e.printStackTrace();
+            System.out.println(file.getAbsolutePath());
         }
 
         return content;
