@@ -27,6 +27,9 @@ public class PdfParser implements Parser {
                 content = stripper.getText(doc);
             }
 
+            // Close the read stream
+            doc.close();
+
         } catch(IOException e) {
             System.out.println(file.getAbsolutePath());
         }
