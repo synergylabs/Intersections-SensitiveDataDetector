@@ -35,6 +35,7 @@ public class MainFrame {
     ExecutorService pool;
 
     private JPanel resultPanel = new JPanel();
+    private JLabel statusLabel = new JLabel();
 
     public MainFrame() {
         listener = new GuiListener(this);
@@ -55,7 +56,7 @@ public class MainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pool = Executors.newFixedThreadPool(POOL_SIZE);
-                pool.submit(new ScanWorker(settings.getStart_folder(), pool));
+                pool.submit(new ScanWorker(settings.getStart_folder(), pool, listener));
             }
         });
 
@@ -78,19 +79,17 @@ public class MainFrame {
                 "Result", TitledBorder.CENTER, TitledBorder.TOP);
         resultPanel.setBorder(border);
         resultPanel.setBackground(Color.white);
-//        resultPanel.setPreferredSize(new Dimension(400, 400));
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
 
-//        for (int i = 0; i < 100; i++) {
-//            resultPanel.add(new JLabel(i + ""));
-//        }
-//
+
         JScrollPane scrollPane = new JScrollPane(resultPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-        // Add button_panel to frame
+        statusLabel.setHorizontalAlignment(JLabel.CENTER);
+
         frame.add(button_panel, BorderLayout.NORTH);
         frame.add(scrollPane, BorderLayout.CENTER);
+        frame.add(statusLabel, BorderLayout.SOUTH);
         frame.setPreferredSize(new Dimension(500, 600));
         frame.pack();
         frame.setVisible(true);
@@ -109,12 +108,19 @@ public class MainFrame {
             ResultTree tree = new ResultTree(type);
             results.put(type, tree);
             resultPanel.add(tree.getTree());
-//            resultPanel.add(new JSeparator());
+            resultPanel.add(new JSeparator());
         }
 
         return results.get(type);
     }
 
 
+    /**
+     * A method to change the status label on the frame
+     * @param msg the content of msg
+     */
+    public void changeStatus(String msg) {
+        statusLabel.setText(msg);
+    }
 
 }

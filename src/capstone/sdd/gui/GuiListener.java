@@ -13,4 +13,8 @@ public class GuiListener {
         this.mainFrame = mainFrame;
     }
 
+    public void changeStatus(String msg) {
+        mainFrame.changeStatus(msg);
+    }
+
 }
