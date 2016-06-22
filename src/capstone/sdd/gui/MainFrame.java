@@ -10,6 +10,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,9 +27,14 @@ public class MainFrame {
     private GuiListener listener;
     private Settings settings = Settings.getInstance();
 
+    // A map contains <Type of PII> -- <The corresponding results panel>
+    private Map<String, ResultTree> results = new HashMap<>();
+
     // Executor pool
-    int POOL_SIZE = Runtime.getRuntime().availableProcessors();
+    private final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
     ExecutorService pool;
+
+    private JPanel resultPanel = new JPanel();
 
     public MainFrame() {
         listener = new GuiListener(this);
@@ -66,10 +73,19 @@ public class MainFrame {
         button_panel.add(scan_btm);
         button_panel.add(stop_btm);
 
-        // Add result panel
-        ResultPanel result_panel = new ResultPanel();
+        // The panel to display results
+        Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
+                "Result", TitledBorder.CENTER, TitledBorder.TOP);
+        resultPanel.setBorder(border);
+        resultPanel.setBackground(Color.white);
+//        resultPanel.setPreferredSize(new Dimension(400, 400));
+        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
 
-        JScrollPane scrollPane = new JScrollPane(result_panel);
+//        for (int i = 0; i < 100; i++) {
+//            resultPanel.add(new JLabel(i + ""));
+//        }
+//
+        JScrollPane scrollPane = new JScrollPane(resultPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         // Add button_panel to frame
@@ -79,5 +95,26 @@ public class MainFrame {
         frame.pack();
         frame.setVisible(true);
     }
+
+
+    /**
+     * A method to get the corresponding result panel for listener to add results
+     * @param type the type of data
+     * @return the result panel
+     */
+    public ResultTree getResultTree(String type) {
+
+        // If no type existed in the frame, add it to results map
+        if (!results.containsKey(type)) {
+            ResultTree tree = new ResultTree(type);
+            results.put(type, tree);
+            resultPanel.add(tree.getTree());
+//            resultPanel.add(new JSeparator());
+        }
+
+        return results.get(type);
+    }
+
+
 
 }

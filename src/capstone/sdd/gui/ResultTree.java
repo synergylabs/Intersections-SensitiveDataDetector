@@ -1,14 +1,8 @@
 package capstone.sdd.gui;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
-import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,25 +15,16 @@ import java.util.Map;
  * ----/user/ssn.txt
  * ----/user/ssn.pdf
  */
-public class ResultPanel extends JPanel {
+public class ResultTree {
 
     // Name - root node of results
     private Map<String, DefaultMutableTreeNode> categories = new HashMap<>();
 
-    private GridBagConstraints c = new GridBagConstraints();
+    private JTree tree;
 
-    public ResultPanel() {
+    public ResultTree(String type) {
 
-        Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-                "Result", TitledBorder.CENTER, TitledBorder.TOP);
-        this.setBorder(border);
-        this.setBackground(Color.white);
-        this.setPreferredSize(new Dimension(400, 400));
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-//        this.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("The Java Series");
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(type);
         for (int i = 0; i < 5; i++) {
             DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
             DefaultMutableTreeNode fruitNode = new DefaultMutableTreeNode("Fruits");
@@ -49,12 +34,9 @@ public class ResultPanel extends JPanel {
             root.add(fruitNode);
         }
 
-        JTree tree = new JTree(root);
+        tree = new JTree(root);
         tree.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        this.add(tree);
-        this.add(new JSeparator());
 
-//        this.add(new JTree(new DefaultMutableTreeNode("hello")));
     }
 
     /**
@@ -67,8 +49,11 @@ public class ResultPanel extends JPanel {
             DefaultMutableTreeNode root = new DefaultMutableTreeNode(catagory);
             JTree tree = new JTree(root);
             categories.put(catagory, root);
-            this.add(tree);
         }
+    }
+
+    public JTree getTree() {
+        return tree;
     }
 
 

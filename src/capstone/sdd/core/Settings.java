@@ -68,6 +68,7 @@ public class Settings {
 	
 	// Regix pattern
 	public void addPattern(String name, String pattern) {
+		name = name.toUpperCase();
 		if (!patterns.containsKey(name)) {
 			patterns.put(name, new HashSet<>());
 		}
