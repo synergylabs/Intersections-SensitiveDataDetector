@@ -20,7 +20,7 @@ import capstone.sdd.parser.ParserFactory;
 public class MatchWorker implements Callable<Void> {
 
 	// Get the leading and tailing context of sensitive data
-	private static final String CONTEXT_PATTERN = ".{0,20}%s.{0,20}";
+	private static final String CONTEXT_PATTERN = ".{0,20}(%s).{0,20}";
 
 	private File file;
 	private Parser parser;
@@ -52,7 +52,8 @@ public class MatchWorker implements Callable<Void> {
 
 				while (m.find()) {
 					System.out.println("Data Type: " + entry.getKey());
-					System.out.println("Data: " + m.group());
+					System.out.println("Data: " + m.group(1));
+					System.out.println("Context: " + m.group());
 					System.out.println("Files: " + file.getAbsolutePath() + "\n");
 				}
 			}
