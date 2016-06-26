@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import capstone.sdd.gui.GuiListener;
 import capstone.sdd.parser.Parser;
 import capstone.sdd.parser.ParserFactory;
 
@@ -24,9 +25,11 @@ public class MatchWorker implements Callable<Void> {
 
 	private File file;
 	private Parser parser;
+
+	private GuiListener listener;
 	
-	public MatchWorker(File file) {
-		
+	public MatchWorker(File file, GuiListener listener) {
+
 		// Get the extension of file
 		int index = file.getName().lastIndexOf('.');
 		String suffix = file.getName().substring(index + 1);
@@ -34,6 +37,7 @@ public class MatchWorker implements Callable<Void> {
 		// Get the parser from factory
 		parser = ParserFactory.getParser(suffix);
 		this.file = file;
+		this.listener = listener;
 	}
 	
 	@Override
@@ -51,15 +55,13 @@ public class MatchWorker implements Callable<Void> {
 				Matcher m = p.matcher(content);
 
 				while (m.find()) {
+					listener.addResult(entry.getKey(), m.group(1), m.group(0), file.getAbsolutePath());
 					System.out.println("Data Type: " + entry.getKey());
 					System.out.println("Data: " + m.group(1));
 					System.out.println("Context: " + m.group());
 					System.out.println("Files: " + file.getAbsolutePath() + "\n");
 				}
 			}
-
-			
-
 		}
 		
 		return null;

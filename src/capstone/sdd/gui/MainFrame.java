@@ -55,6 +55,9 @@ public class MainFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Clear the result Panel
+                resultPanel.removeAll();
+
                 pool = Executors.newFixedThreadPool(POOL_SIZE);
                 pool.submit(new ScanWorker(settings.getStart_folder(), pool, listener));
             }
@@ -67,6 +70,7 @@ public class MainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pool.shutdownNow();
+                statusLabel.setText("");
             }
         });
 
@@ -108,7 +112,6 @@ public class MainFrame {
             ResultTree tree = new ResultTree(type);
             results.put(type, tree);
             resultPanel.add(tree.getTree());
-            resultPanel.add(new JSeparator());
         }
 
         return results.get(type);

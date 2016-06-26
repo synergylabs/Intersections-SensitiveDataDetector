@@ -18,12 +18,12 @@ public class Main {
 	public static void  main(String[] args) {
 
 		// Open a executor survice to execute all the tasks by multi-threads
-		int POOL_SIZE = Runtime.getRuntime().availableProcessors();
-		ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
-
+//		int POOL_SIZE = Runtime.getRuntime().availableProcessors();
+//		ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
+//
 		// Configure the settings, all the workers will have access to the settings
 		Settings settings = Settings.getInstance();
-		settings.setScan_sub_repo(false);
+//		settings.setScan_sub_repo(false);
 
 		settings.addSupported_file("txt");
 		settings.addSupported_file("docx");
@@ -35,11 +35,13 @@ public class Main {
 		settings.addPattern("credit card", "4[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}");
 
 		settings.setStart_folder("/Users/lieyongzou/Documents");
+//
+//		// Start scan
+//		pool.submit(new ScanWorker(settings.getStart_folder(), pool));
 
-		// Start scan
-		pool.submit(new ScanWorker(settings.getStart_folder(), pool));
-
-//		SwingUtilities.invokeLater(() -> new MainFrame());
+		SwingUtilities.invokeLater(() -> {
+			MainFrame frame = new MainFrame();
+		});
 
 	}
 

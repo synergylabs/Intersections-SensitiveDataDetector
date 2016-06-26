@@ -17,4 +17,18 @@ public class GuiListener {
         mainFrame.changeStatus(msg);
     }
 
+    /**
+     * A method to add result to GUI
+     * @param type the type of sensitive data
+     * @param data the data itself
+     * @param context the context of data
+     * @param path the path to the file
+     */
+    public void addResult(String type, String data, String context, String path) {
+        ResultTree tree = mainFrame.getResultTree(type);
+
+        tree.addResult(data, context, path);
+    }
+
+
 }

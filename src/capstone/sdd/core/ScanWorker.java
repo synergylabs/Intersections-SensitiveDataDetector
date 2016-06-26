@@ -39,7 +39,7 @@ public class ScanWorker implements Callable<Void> {
 				}
 			} else{
 				if (settings.isSupported(file)) {
-					pool.submit(new MatchWorker(file)); 	// send the file to match worker to match
+					pool.submit(new MatchWorker(file, listener)); 	// send the file to match worker to match
 				}
 			}
 		}

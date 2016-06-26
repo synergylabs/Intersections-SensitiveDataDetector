@@ -2,7 +2,13 @@ package capstone.sdd.gui;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,39 +24,69 @@ import java.util.Map;
 public class ResultTree {
 
     // Name - root node of results
-    private Map<String, DefaultMutableTreeNode> categories = new HashMap<>();
+    private Map<String, DefaultMutableTreeNode> result_node_dict = new HashMap<>();
+    private Map<String, List<List<String>>> detailed_result_dict = new HashMap<>();
 
     private JTree tree;
+    private DefaultTreeModel model;
 
     public ResultTree(String type) {
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(type);
-        for (int i = 0; i < 5; i++) {
-            DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
-            DefaultMutableTreeNode fruitNode = new DefaultMutableTreeNode("Fruits");
-
-            //add the child nodes to the root node
-            root.add(vegetableNode);
-            root.add(fruitNode);
-        }
-
         tree = new JTree(root);
         tree.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        model = (DefaultTreeModel)tree.getModel();
+
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+
+                // If user double click the sensitive data, shows the detailed information
+                if (e.getClickCount() == 2) {
+                    Object[] nodes = path.getPath();
+
+                    if (nodes.length == 2) {
+                        String data = nodes[1].toString();
+                        System.out.println(detailed_result_dict.get(data));
+                    }
+
+                }
+            }
+        });
 
     }
 
     /**
      * A method to add a category of sensitive data in result panel
-     * @param catagory the category, eg: ssn
+     * @param data the data itself
+     * @param context the context around data
+     * @param path the path to the file
      */
-    public void addCategory(String catagory) {
+    public void addResult(String data, String context, String path) {
 
-        if (!categories.containsKey(catagory)) {
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode(catagory);
-            JTree tree = new JTree(root);
-            categories.put(catagory, root);
+        if (!result_node_dict.containsKey(data)) {
+            DefaultMutableTreeNode node = new DefaultMutableTreeNode(data);
+            result_node_dict.put(data, node);
+            ((DefaultMutableTreeNode)model.getRoot()).add(node);
+
+            detailed_result_dict.put(data, new ArrayList<>(2));
         }
+
+        DefaultMutableTreeNode node = result_node_dict.get(data);
+        DefaultMutableTreeNode new_node = new DefaultMutableTreeNode(path);
+        node.add(new_node);
+        model.reload();
+
+        List<String> list = new ArrayList<>();
+        list.add(context);
+        list.add(path);
+        detailed_result_dict.get(data).add(list);
+
     }
+
 
     public JTree getTree() {
         return tree;
