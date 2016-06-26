@@ -51,7 +51,7 @@ public class ResultTree {
                     if (nodes.length == 2) {
                         String data = nodes[1].toString();
                         System.out.println(detailed_result_dict.get(data));
-                        new ResultPanel(data, detailed_result_dict.get(data)).setVisible(true);
+                        new ResultPanel(type, data, detailed_result_dict.get(data)).setVisible(true);
                     }
 
                 }
