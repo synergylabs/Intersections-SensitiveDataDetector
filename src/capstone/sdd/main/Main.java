@@ -30,7 +30,7 @@ public class Main {
 		settings.addSupported_file("doc");
 		settings.addSupported_file("pdf");
 
-		settings.addPattern("ssn", "(\\d{3}-\\d{2}-\\d{4})");
+		settings.addPattern("ssn", "(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}");
 		settings.addPattern("credit card", "4[0-9]{12}(?:[0-9]{3})?");
 		settings.addPattern("credit card", "4[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}");
 

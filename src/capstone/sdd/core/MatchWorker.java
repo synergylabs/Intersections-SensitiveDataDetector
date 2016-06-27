@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 import capstone.sdd.gui.GuiListener;
 import capstone.sdd.parser.Parser;
 import capstone.sdd.parser.ParserFactory;
+import capstone.sdd.validator.Validator;
+import capstone.sdd.validator.ValidatorFactory;
 
 /**
  * A class to get the file from Scan worker and parse the file, check the content of file
@@ -51,15 +53,19 @@ public class MatchWorker implements Callable<Void> {
 			// Match the patterns in set
 			for (String pattern : entry.getValue()) {
 				Pattern p = Pattern.compile(String.format(CONTEXT_PATTERN, pattern));
-//				Pattern p = Pattern.compile(pattern);
 				Matcher m = p.matcher(content);
 
 				while (m.find()) {
-					listener.addResult(entry.getKey(), m.group(1), m.group(0), file.getAbsolutePath());
-					System.out.println("Data Type: " + entry.getKey());
-					System.out.println("Data: " + m.group(1));
-					System.out.println("Context: " + m.group());
-					System.out.println("Files: " + file.getAbsolutePath() + "\n");
+
+					// Validate the data
+					Validator validator = ValidatorFactory.getValidator(entry.getKey());
+					if (validator == null || validator.validate(m.group(1))) {
+						listener.addResult(entry.getKey(), m.group(1), m.group(0), file.getAbsolutePath());
+					} else {
+						System.out.println("False data: " + m.group(1));
+					}
+
+
 				}
 			}
 		}
