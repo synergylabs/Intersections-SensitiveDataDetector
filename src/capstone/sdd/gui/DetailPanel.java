@@ -39,48 +39,7 @@ public class DetailPanel extends JPanel {
      * @param detailed_dict the detailed information of specific data
      */
     public void displayDetails(String type, String data, List<List<String>> detailed_dict) {
-        this.removeAll();
-
-        this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-
-        JPanel buttonPanel = new JPanel();
-
-        JLabel title = new JLabel(type + " : " + data);
-        title.setFont(new Font("Serif", Font.BOLD, 15));
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-
-        buttonPanel.setBackground(Color.white);
-        buttonPanel.add(title);
-        buttonPanel.add(new JButton("Set Correct"));
-
-        this.add(buttonPanel, BorderLayout.NORTH);
-
-        // Add content
-        JTextPane textPane = new JTextPane();
-        textPane.setEditable(false);
-        StyledDocument doc = textPane.getStyledDocument();
-        this.highlighter = (DefaultHighlighter) textPane.getHighlighter();
-
-        try {
-
-            for (List<String> pair : detailed_dict) {
-                doc.insertString(doc.getLength(), pair.get(0) + "\n", null);
-                doc.insertString(doc.getLength(), pair.get(1) + "\n\n", null);
-            }
-
-
-            highlightText(doc, data);
-
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-
-
-        JScrollPane scrollPane = new JScrollPane(textPane);
-        this.add(scrollPane, BorderLayout.CENTER);
-
-        mainFrame.pack();
+        new DetailWorker(type, data, detailed_dict).execute();
     }
 
     /**
@@ -89,49 +48,7 @@ public class DetailPanel extends JPanel {
      * @param dataset the set of data
      */
     public void displayFile(File file, Set<String> dataset) {
-        this.removeAll();
-
-        this.setLayout(new BorderLayout());
-        this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-
-        JPanel buttonPanel = new JPanel();
-
-        JLabel title = new JLabel(file.getName());
-        title.setFont(new Font("Serif", Font.BOLD, 15));
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-
-        buttonPanel.setBackground(Color.white);
-        buttonPanel.add(title);
-        buttonPanel.add(new JButton("Set Correct"));
-
-        this.add(buttonPanel, BorderLayout.NORTH);
-
-        // Add content
-        JTextPane textPane = new JTextPane();
-        textPane.setEditable(false);
-        StyledDocument doc = textPane.getStyledDocument();
-        this.highlighter = (DefaultHighlighter) textPane.getHighlighter();
-
-        try {
-
-            String content = ParserFactory.getContent(file);
-
-            doc.insertString(doc.getLength(), content, null);
-
-            // Highlight the data
-            for (String data : dataset) {
-                highlightText(doc, data);
-            }
-
-
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-
-        JScrollPane scrollPane = new JScrollPane(textPane);
-        this.add(scrollPane, BorderLayout.CENTER);
-
-        mainFrame.pack();
+        new FileWorker(file, dataset).execute();
     }
 
 
@@ -157,4 +74,141 @@ public class DetailPanel extends JPanel {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * A worker thread to display details information
+     */
+    class DetailWorker extends SwingWorker<Void, Void> {
+
+        private String type;
+        private String data;
+        private List<List<String>> detailed_dict;
+
+        public DetailWorker(String type, String data, List<List<String>> detailed_dict) {
+            this.type = type;
+            this.data = data;
+            this.detailed_dict = detailed_dict;
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+
+            DetailPanel.this.removeAll();
+
+            DetailPanel.this.setLayout(new BorderLayout());
+            DetailPanel.this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+
+            JPanel buttonPanel = new JPanel();
+
+            JLabel title = new JLabel(type + " : " + data);
+            title.setFont(new Font("Serif", Font.BOLD, 15));
+            title.setHorizontalAlignment(SwingConstants.CENTER);
+
+            buttonPanel.setBackground(Color.white);
+            buttonPanel.add(title);
+            buttonPanel.add(new JButton("Set Correct"));
+
+            DetailPanel.this.add(buttonPanel, BorderLayout.NORTH);
+
+            // Add content
+            JTextPane textPane = new JTextPane();
+            textPane.setEditable(false);
+            StyledDocument doc = textPane.getStyledDocument();
+            DetailPanel.this.highlighter = (DefaultHighlighter) textPane.getHighlighter();
+
+            try {
+
+                for (List<String> pair : detailed_dict) {
+                    doc.insertString(doc.getLength(), pair.get(0) + "\n", null);
+                    doc.insertString(doc.getLength(), pair.get(1) + "\n\n", null);
+                }
+
+
+                highlightText(doc, data);
+
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+
+
+            JScrollPane scrollPane = new JScrollPane(textPane);
+            DetailPanel.this.add(scrollPane, BorderLayout.CENTER);
+
+            mainFrame.pack();
+
+            return null;
+        }
+    }
+
+
+    /**
+     * A worker thread to read file and display on the panel
+     */
+    class FileWorker extends SwingWorker<Void, Void> {
+
+        private File file;
+        private Set<String> dataset;
+
+        public FileWorker(File file, Set<String> dataset) {
+            this.file = file;
+            this.dataset = dataset;
+        }
+
+
+        @Override
+        protected Void doInBackground() throws Exception {
+
+            DetailPanel.this.removeAll();
+
+            DetailPanel.this.setLayout(new BorderLayout());
+            DetailPanel.this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+
+            JPanel buttonPanel = new JPanel();
+
+            JLabel title = new JLabel(file.getName());
+            title.setFont(new Font("Serif", Font.BOLD, 15));
+            title.setHorizontalAlignment(SwingConstants.CENTER);
+
+            buttonPanel.setBackground(Color.white);
+            buttonPanel.add(title);
+            buttonPanel.add(new JButton("Set Correct"));
+
+            DetailPanel.this.add(buttonPanel, BorderLayout.NORTH);
+
+            // Add content
+            JTextPane textPane = new JTextPane();
+            textPane.setEditable(false);
+            StyledDocument doc = textPane.getStyledDocument();
+            DetailPanel.this.highlighter = (DefaultHighlighter) textPane.getHighlighter();
+
+            try {
+
+                String content = ParserFactory.getContent(file);
+
+                doc.insertString(doc.getLength(), content, null);
+
+                // Highlight the data
+                for (String data : dataset) {
+                    highlightText(doc, data);
+                }
+
+
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+
+            JScrollPane scrollPane = new JScrollPane(textPane);
+            DetailPanel.this.add(scrollPane, BorderLayout.CENTER);
+
+            mainFrame.pack();
+
+            return null;
+        }
+    }
+
+
 }
+
+
+
