@@ -22,6 +22,8 @@ import java.util.concurrent.Executors;
 public class MainFrame {
 
     private final static String TITLE = "Sensitive Data Detector";
+    private final static int WINDOW_WIDTH = 400;
+    private final static int WINDOW_HEIGHT = 500;
 
     private JFrame frame;
     private GuiListener listener;
@@ -35,6 +37,7 @@ public class MainFrame {
     ExecutorService pool;
 
     private JPanel resultPanel = new JPanel();
+    private DetailPanel detailPanel;
     private JLabel statusLabel = new JLabel();
 
     public MainFrame() {
@@ -45,9 +48,16 @@ public class MainFrame {
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
 
+        detailPanel = new DetailPanel(frame);
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+
         // Add button panel to frame
-        JPanel button_panel = new JPanel();
-        button_panel.setLayout(new FlowLayout());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.setBackground(Color.WHITE);
 
         // Button to start scan
         JButton scan_btm = new JButton("Scan");
@@ -75,26 +85,29 @@ public class MainFrame {
         });
 
         // Add two buttons to panel
-        button_panel.add(scan_btm);
-        button_panel.add(stop_btm);
+        buttonPanel.add(scan_btm);
+        buttonPanel.add(stop_btm);
 
         // The panel to display results
         Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
                 "Result", TitledBorder.CENTER, TitledBorder.TOP);
-        resultPanel.setBorder(border);
+        resultPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPanel.setBackground(Color.white);
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
 
 
         JScrollPane scrollPane = new JScrollPane(resultPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
         statusLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        frame.add(button_panel, BorderLayout.NORTH);
-        frame.add(scrollPane, BorderLayout.CENTER);
-        frame.add(statusLabel, BorderLayout.SOUTH);
-        frame.setPreferredSize(new Dimension(500, 600));
+        mainPanel.add(buttonPanel, BorderLayout.NORTH);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(statusLabel, BorderLayout.SOUTH);
+
+        frame.add(mainPanel, BorderLayout.LINE_START);
+        frame.add(detailPanel, BorderLayout.LINE_END);
         frame.pack();
         frame.setVisible(true);
     }
@@ -109,7 +122,7 @@ public class MainFrame {
 
         // If no type existed in the frame, add it to results map
         if (!results.containsKey(type)) {
-            ResultTree tree = new ResultTree(type);
+            ResultTree tree = new ResultTree(type, detailPanel);
             results.put(type, tree);
             resultPanel.add(tree.getTree());
         }

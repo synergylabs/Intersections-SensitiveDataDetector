@@ -30,7 +30,11 @@ public class ResultTree {
     private JTree tree;
     private DefaultTreeModel model;
 
-    public ResultTree(String type) {
+    private DetailPanel detailPanel;
+
+    public ResultTree(String type, DetailPanel detailPanel) {
+
+        this.detailPanel = detailPanel;
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(type);
         tree = new JTree(root);
@@ -45,13 +49,13 @@ public class ResultTree {
                 TreePath path = tree.getPathForLocation(e.getX(), e.getY());
 
                 // If user double click the sensitive data, shows the detailed information
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 1) {
                     Object[] nodes = path.getPath();
 
                     if (nodes.length == 2) {
                         String data = nodes[1].toString();
                         System.out.println(detailed_result_dict.get(data));
-                        new ResultPanel(type, data, detailed_result_dict.get(data)).setVisible(true);
+                        detailPanel.displayDetails(type, data, detailed_result_dict.get(data));
                     }
 
                 }

@@ -11,29 +11,47 @@ import java.util.List;
 /**
  * Created by lieyongzou on 6/26/16.
  */
-public class ResultPanel extends JDialog {
+public class DetailPanel extends JPanel {
 
-    private String data;
-    private List<List<String>> detailed_dict;
+    private final static int WINDOW_WIDTH = 400;
+    private final static int WINDOW_HEIGHT = 500;
+
+    JFrame mainFrame;
+
 
     // Define the highlight style
     private DefaultHighlighter highlighter;
     private DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.yellow);
 
-    public ResultPanel(String type, String data, List<List<String>> detailed_dict) {
-        this.data = data;
-        this.detailed_dict = detailed_dict;
+    public DetailPanel(JFrame mainFrame) {
+        this.mainFrame = mainFrame;
+        this.setBackground(Color.WHITE);
+    }
 
-//        this.setTitle(data);
+
+    /**
+     * A method to display details of selected data
+     * @param type the type of data
+     * @param data the data
+     * @param detailed_dict the detailed information of specific data
+     */
+    public void displayDetails(String type, String data, List<List<String>> detailed_dict) {
+        this.removeAll();
+
         this.setLayout(new BorderLayout());
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        this.setPreferredSize(new Dimension(400, 500));
-        ((JPanel) this.getContentPane()).setBorder(new EmptyBorder(10, 5, 10, 5));
+        this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+
+        JPanel buttonPanel = new JPanel();
 
         JLabel title = new JLabel(type + " : " + data);
         title.setFont(new Font("Serif", Font.BOLD, 15));
         title.setHorizontalAlignment(SwingConstants.CENTER);
-        this.add(title, BorderLayout.NORTH);
+
+        buttonPanel.setBackground(Color.white);
+        buttonPanel.add(title);
+        buttonPanel.add(new JButton("Set Correct"));
+
+        this.add(buttonPanel, BorderLayout.NORTH);
 
         // Add content
         JTextPane textPane = new JTextPane();
@@ -42,10 +60,12 @@ public class ResultPanel extends JDialog {
         this.highlighter = (DefaultHighlighter) textPane.getHighlighter();
 
         try {
+
             for (List<String> pair : detailed_dict) {
                 doc.insertString(doc.getLength(), pair.get(0) + "\n", null);
                 doc.insertString(doc.getLength(), pair.get(1) + "\n\n", null);
             }
+
 
             // Highlight the data
             String content = doc.getText(0, doc.getLength());
@@ -65,7 +85,6 @@ public class ResultPanel extends JDialog {
         JScrollPane scrollPane = new JScrollPane(textPane);
         this.add(scrollPane, BorderLayout.CENTER);
 
-        pack();
-
+        mainFrame.pack();
     }
 }

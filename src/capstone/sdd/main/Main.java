@@ -1,11 +1,5 @@
 package capstone.sdd.main;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import capstone.sdd.core.ScanWorker;
 import capstone.sdd.core.Settings;
 import capstone.sdd.gui.MainFrame;
 
@@ -40,8 +34,15 @@ public class Main {
 //		pool.submit(new ScanWorker(settings.getStart_folder(), pool));
 
 		SwingUtilities.invokeLater(() -> {
-			MainFrame frame = new MainFrame();
+			new MainFrame();
 		});
+
+
+//		Pattern p = Pattern.compile("(4[0-9]{3}$)");
+//		Matcher m = p.matcher(" 43214221");
+//		while (m.find()) {
+//			System.out.print(m.group(1));
+//		}
 
 	}
 
