@@ -42,24 +42,25 @@ public class ResultTree {
         model = (DefaultTreeModel)tree.getModel();
 
         tree.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
 
-                TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+                TreePath treePath = tree.getPathForLocation(e.getX(), e.getY());
 
                 // If user double click the sensitive data, shows the detailed information
                 if (e.getClickCount() == 1) {
-                    Object[] nodes = path.getPath();
+                    Object[] nodes = treePath.getPath();
 
                     if (nodes.length == 2) {
                         String data = nodes[1].toString();
-                        System.out.println(detailed_result_dict.get(data));
                         listener.displayDataInfo(type, data, detailed_result_dict.get(data));
                     }
 
                     else if (nodes.length == 3) {
-
+                        String path = nodes[2].toString();
+                        listener.displayFileInfo(new File(path));
                     }
 
                 }

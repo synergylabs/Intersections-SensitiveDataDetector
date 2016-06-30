@@ -2,6 +2,7 @@ package capstone.sdd.gui;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A class to add result in GUI, called by components in Scanner
@@ -42,4 +43,14 @@ public class GuiListener {
         mainFrame.getDetailPanel().displayDetails(type, data, detailed_dict);
     }
 
+
+    /**
+     * A method to display the preview of file on the panel
+     * @param file the file
+     */
+    public void displayFileInfo(File file) {
+        Set<String> dataset = mainFrame.getDataInFile(file);
+
+        mainFrame.getDetailPanel().displayFile(file, dataset);
+    }
 }

@@ -154,4 +154,14 @@ public class MainFrame {
         return detailPanel;
     }
 
+
+    /**
+     * A method to get the set of sensitive data data in the file
+     * @param file the file
+     * @return the set of sensitive data
+     */
+    public Set<String> getDataInFile(File file) {
+        return fileMap.get(file);
+    }
+
 }
