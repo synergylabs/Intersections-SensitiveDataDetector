@@ -26,18 +26,11 @@ public class MatchWorker implements Callable<Void> {
 	private static final String CONTEXT_PATTERN = ".{0,20}(%s).{0,20}";
 
 	private File file;
-	private Parser parser;
 
 	private GuiListener listener;
 	
 	public MatchWorker(File file, GuiListener listener) {
 
-		// Get the extension of file
-		int index = file.getName().lastIndexOf('.');
-		String suffix = file.getName().substring(index + 1);
-		
-		// Get the parser from factory
-		parser = ParserFactory.getParser(suffix);
 		this.file = file;
 		this.listener = listener;
 	}
@@ -45,7 +38,7 @@ public class MatchWorker implements Callable<Void> {
 	@Override
 	public Void call() throws Exception {
 		
-		String content = parser.parse(file);
+		String content = ParserFactory.getContent(file);
 		
 		// Get a list patterns need to match
 		for (Map.Entry<String, Set<String>> entry : Settings.getInstance().getPatterns().entrySet()) {

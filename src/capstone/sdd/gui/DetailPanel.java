@@ -1,5 +1,7 @@
 package capstone.sdd.gui;
 
+import capstone.sdd.parser.ParserFactory;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -112,9 +114,15 @@ public class DetailPanel extends JPanel {
 
         try {
 
+            String content = ParserFactory.getContent(file);
+
+            doc.insertString(doc.getLength(), content, null);
+
+            // Highlight the data
             for (String data : dataset) {
-                doc.insertString(doc.getLength(), data + "\n", null);
+                highlightText(doc, data);
             }
+
 
         } catch (BadLocationException e) {
             e.printStackTrace();
