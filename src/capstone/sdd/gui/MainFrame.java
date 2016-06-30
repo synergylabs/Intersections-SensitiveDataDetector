@@ -10,8 +10,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,6 +31,9 @@ public class MainFrame {
 
     // A map contains <Type of PII> -- <The corresponding results panel>
     private Map<String, ResultTree> results = new HashMap<>();
+
+    // A map contains file and its sensitive data
+    private Map<File, Set<String>> fileMap = new HashMap<>();
 
     // Executor pool
     private final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
@@ -116,18 +119,25 @@ public class MainFrame {
     /**
      * A method to get the corresponding result panel for listener to add results
      * @param type the type of data
-     * @return the result panel
      */
-    public ResultTree getResultTree(String type) {
+    public void getResultTree(String type, String data, String context, File file) {
 
         // If no type existed in the frame, add it to results map
         if (!results.containsKey(type)) {
-            ResultTree tree = new ResultTree(type, detailPanel);
+            ResultTree tree = new ResultTree(type, listener);
             results.put(type, tree);
             resultPanel.add(tree.getTree());
         }
 
-        return results.get(type);
+        // Add result to the result tree
+        results.get(type).addResult(data, context, file);
+
+        // Add data to the file infomation
+        if (!fileMap.containsKey(file)) {
+            fileMap.put(file, new HashSet<>());
+        }
+
+        fileMap.get(file).add(data);
     }
 
 
@@ -137,6 +147,11 @@ public class MainFrame {
      */
     public void changeStatus(String msg) {
         statusLabel.setText(msg);
+    }
+
+
+    public DetailPanel getDetailPanel() {
+        return detailPanel;
     }
 
 }

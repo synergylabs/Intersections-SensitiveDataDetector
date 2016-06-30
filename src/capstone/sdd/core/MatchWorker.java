@@ -60,7 +60,7 @@ public class MatchWorker implements Callable<Void> {
 					// Validate the data
 					Validator validator = ValidatorFactory.getValidator(entry.getKey());
 					if (validator == null || validator.validate(m.group(1))) {
-						listener.addResult(entry.getKey(), m.group(1), m.group(0), file.getAbsolutePath());
+						listener.addResult(entry.getKey(), m.group(1), m.group(0), file);
 					} else {
 						System.out.println("False data: " + m.group(1));
 					}

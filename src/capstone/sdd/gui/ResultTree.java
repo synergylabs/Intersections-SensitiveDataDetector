@@ -6,6 +6,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +30,11 @@ public class ResultTree {
 
     private JTree tree;
     private DefaultTreeModel model;
+    private GuiListener listener;
 
-    private DetailPanel detailPanel;
+    public ResultTree(String type, GuiListener listener) {
 
-    public ResultTree(String type, DetailPanel detailPanel) {
-
-        this.detailPanel = detailPanel;
+        this.listener = listener;
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(type);
         tree = new JTree(root);
@@ -55,7 +55,11 @@ public class ResultTree {
                     if (nodes.length == 2) {
                         String data = nodes[1].toString();
                         System.out.println(detailed_result_dict.get(data));
-                        detailPanel.displayDetails(type, data, detailed_result_dict.get(data));
+                        listener.displayDataInfo(type, data, detailed_result_dict.get(data));
+                    }
+
+                    else if (nodes.length == 3) {
+
                     }
 
                 }
@@ -68,9 +72,9 @@ public class ResultTree {
      * A method to add a category of sensitive data in result panel
      * @param data the data itself
      * @param context the context around data
-     * @param path the path to the file
+     * @param file the path to the file
      */
-    public void addResult(String data, String context, String path) {
+    public void addResult(String data, String context, File file) {
 
         if (!result_node_dict.containsKey(data)) {
             DefaultMutableTreeNode node = new DefaultMutableTreeNode(data);
@@ -81,13 +85,13 @@ public class ResultTree {
         }
 
         DefaultMutableTreeNode node = result_node_dict.get(data);
-        DefaultMutableTreeNode new_node = new DefaultMutableTreeNode(path);
+        DefaultMutableTreeNode new_node = new DefaultMutableTreeNode(file.getAbsolutePath());
         node.add(new_node);
         model.reload();
 
         List<String> list = new ArrayList<>();
         list.add(context);
-        list.add(path);
+        list.add(file.getAbsolutePath());
         detailed_result_dict.get(data).add(list);
 
     }
