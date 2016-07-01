@@ -4,6 +4,8 @@ import capstone.sdd.core.Settings;
 import capstone.sdd.gui.MainFrame;
 
 import javax.swing.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Main {
@@ -24,9 +26,9 @@ public class Main {
 		settings.addSupported_file("doc");
 		settings.addSupported_file("pdf");
 
-		settings.addPattern("ssn", "(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}");
-		settings.addPattern("credit card", "4[0-9]{12}(?:[0-9]{3})?");
-		settings.addPattern("credit card", "4[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}");
+		settings.addPattern("ssn", "[\\D](?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}[\\D]");
+		settings.addPattern("credit card", "[\\D]4[0-9]{12}(?:[0-9]{3})?[\\D]");
+		settings.addPattern("credit card", "[\\D]4[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}[\\D]");
 
 		settings.setStart_folder("/Users/lieyongzou/Documents");
 //
@@ -38,8 +40,8 @@ public class Main {
 		});
 
 
-//		Pattern p = Pattern.compile("(4[0-9]{3}$)");
-//		Matcher m = p.matcher(" 43214221");
+//		Pattern p = Pattern.compile("[\\D](4[0-9]{3})");
+//		Matcher m = p.matcher("4221=1231273y182");
 //		while (m.find()) {
 //			System.out.print(m.group(1));
 //		}

@@ -23,7 +23,7 @@ public class ParserFactory {
 
 		// Get the parser from factory
 		Parser parser = ParserFactory.getParser(suffix);
-		return parser.parse(file);
+		return " " + parser.parse(file) + " ";
 	}
 
 

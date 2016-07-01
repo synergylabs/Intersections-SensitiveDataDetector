@@ -2,11 +2,15 @@ package capstone.sdd.gui;
 
 import capstone.sdd.parser.ParserFactory;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -100,14 +104,33 @@ public class DetailPanel extends JPanel {
             DetailPanel.this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
             JPanel buttonPanel = new JPanel();
+            buttonPanel.setBackground(Color.white);
 
             JLabel title = new JLabel(type + " : " + data);
             title.setFont(new Font("Serif", Font.BOLD, 15));
             title.setHorizontalAlignment(SwingConstants.CENTER);
 
-            buttonPanel.setBackground(Color.white);
+            JLabel correct_btm = new JLabel(getImage("correct.png"));
+            correct_btm.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    title.setForeground(Color.GREEN);
+                }
+            });
+
+            JLabel wrong_btm = new JLabel(getImage("wrong.png"));
+            wrong_btm.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    title.setForeground(Color.RED);
+                }
+            });
+
+
             buttonPanel.add(title);
-            buttonPanel.add(new JButton("Set Correct"));
+            buttonPanel.add(correct_btm);
+            buttonPanel.add(wrong_btm);
+
 
             DetailPanel.this.add(buttonPanel, BorderLayout.NORTH);
 
@@ -207,6 +230,24 @@ public class DetailPanel extends JPanel {
         }
     }
 
+    /**
+     * A method to get image icon from file
+     * @param name the name of image
+     * @return the image icon
+     */
+    private ImageIcon getImage(String name) {
+        ImageIcon imageIcon = null;
+
+        try {
+            BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
+            imageIcon = new ImageIcon(bufferedImage);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return imageIcon;
+    }
 
 }
 

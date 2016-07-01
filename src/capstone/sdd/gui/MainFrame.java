@@ -3,13 +3,15 @@ package capstone.sdd.gui;
 import capstone.sdd.core.ScanWorker;
 import capstone.sdd.core.Settings;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -62,26 +64,25 @@ public class MainFrame {
         buttonPanel.setLayout(new FlowLayout());
         buttonPanel.setBackground(Color.WHITE);
 
-        // Button to start scan
-        JButton scan_btm = new JButton("Scan");
-        scan_btm.addActionListener(new ActionListener() {
 
+        JLabel scan_btm = new JLabel("Start", getImage("start.png"), JLabel.CENTER);
+        scan_btm.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 // Clear the result Panel
                 resultPanel.removeAll();
+                frame.pack();
 
                 pool = Executors.newFixedThreadPool(POOL_SIZE);
                 pool.submit(new ScanWorker(settings.getStart_folder(), pool, listener));
             }
         });
 
-        // Button to stop scan
-        JButton stop_btm = new JButton("Stop");
-        stop_btm.addActionListener(new ActionListener() {
 
+        JLabel stop_btm = new JLabel("Stop", getImage("stop.png"), JLabel.CENTER);
+        stop_btm.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 pool.shutdownNow();
                 statusLabel.setText("");
             }
@@ -107,10 +108,10 @@ public class MainFrame {
 
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.add(statusLabel, BorderLayout.SOUTH);
 
         frame.add(mainPanel, BorderLayout.LINE_START);
         frame.add(detailPanel, BorderLayout.LINE_END);
+        frame.add(statusLabel, BorderLayout.SOUTH);
         frame.pack();
         frame.setVisible(true);
     }
@@ -163,5 +164,26 @@ public class MainFrame {
     public Set<String> getDataInFile(File file) {
         return fileMap.get(file);
     }
+
+
+    /**
+     * A method to get image icon from file
+     * @param name the name of image
+     * @return the image icon
+     */
+    private ImageIcon getImage(String name) {
+        ImageIcon imageIcon = null;
+
+        try {
+            BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
+            imageIcon = new ImageIcon(bufferedImage);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return imageIcon;
+    }
+
 
 }
