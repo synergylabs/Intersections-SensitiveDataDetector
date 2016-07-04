@@ -24,7 +24,6 @@ public class ScanWorker implements Callable<Void> {
 
 	@Override
 	public Void call() throws Exception {
-
 		listener.changeStatus(folder.getAbsolutePath());
 		
 		File[] files = folder.listFiles();

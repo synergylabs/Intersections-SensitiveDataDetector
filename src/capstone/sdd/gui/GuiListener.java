@@ -21,6 +21,10 @@ public class GuiListener {
         mainFrame.changeStatus(msg);
     }
 
+    public void incrementFile() {
+        mainFrame.incrementFile();
+    }
+
     /**
      * A method to add result to GUI
      * @param type the type of sensitive data

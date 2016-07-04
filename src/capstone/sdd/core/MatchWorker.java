@@ -62,6 +62,8 @@ public class MatchWorker implements Callable<Void> {
 				}
 			}
 		}
+
+		listener.incrementFile();
 		
 		return null;
 	}

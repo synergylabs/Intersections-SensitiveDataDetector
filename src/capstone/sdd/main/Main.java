@@ -4,6 +4,7 @@ import capstone.sdd.core.Settings;
 import capstone.sdd.gui.MainFrame;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,6 +38,7 @@ public class Main {
 
 		SwingUtilities.invokeLater(() -> {
 			new MainFrame();
+//			NewClass();
 		});
 
 
@@ -46,6 +48,34 @@ public class Main {
 //			System.out.print(m.group(1));
 //		}
 
+	}
+
+	public static void NewClass(){
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		JPanel panel = new JPanel();
+//		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		frame.add(panel);
+
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.weighty = 1;
+		c.weightx = 1;
+		c.gridx = 0;
+		c.gridy = 0;
+		panel.add(new Button("Hello"), c);
+		c.gridy = 1;
+		panel.add(new Button("Hello"), c);
+		c.gridy = 2;
+		panel.add(new Button("Hello"), c);
+		c.gridy = 0;
+		c.gridx = 1;
+		panel.add(new Button("Hello"), c);
+
+		frame.pack();
+		frame.setSize(800,400);
+		frame.setVisible(true);
 	}
 
 }

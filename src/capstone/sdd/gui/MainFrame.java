@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by lieyongzou on 6/16/16.
@@ -43,7 +44,13 @@ public class MainFrame {
 
     private JPanel resultPanel = new JPanel();
     private DetailPanel detailPanel;
-    private JLabel statusLabel = new JLabel();
+    private JPanel statusPanel = new JPanel();
+
+    private JLabel workStatus = new JLabel();
+    private JLabel progressStatus = new JLabel();
+
+    // The number of files scanned
+    private AtomicInteger progressNumber = new AtomicInteger(0);
 
     public MainFrame() {
         listener = new GuiListener(this);
@@ -70,6 +77,7 @@ public class MainFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // Clear the result Panel
+                statusPanel.setVisible(true);
                 resultPanel.removeAll();
                 frame.pack();
 
@@ -84,7 +92,8 @@ public class MainFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 pool.shutdownNow();
-                statusLabel.setText("");
+                statusPanel.setVisible(false);
+                progressNumber = new AtomicInteger(0);
             }
         });
 
@@ -97,21 +106,50 @@ public class MainFrame {
                 "Result", TitledBorder.CENTER, TitledBorder.TOP);
         resultPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPanel.setBackground(Color.white);
-        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
-
+        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.PAGE_AXIS));
 
         JScrollPane scrollPane = new JScrollPane(resultPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
-        statusLabel.setHorizontalAlignment(JLabel.CENTER);
-
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
+        // The panel to display status
+        statusPanel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        JLabel workLabel = new JLabel("Current Folder:");
+        workLabel.setFont(new Font("Serif", Font.BOLD, 15));
+
+        JLabel progressLabel = new JLabel("Scanned Files:");
+        progressLabel.setFont(new Font("Serif", Font.BOLD, 15));
+
+
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.insets = new Insets(0, 10, 0, 0);
+        statusPanel.add(workLabel, c);
+
+        c.gridy = 1;
+        statusPanel.add(progressLabel, c);
+
+        c.gridx = 1;
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridwidth = 2;
+        statusPanel.add(progressStatus, c);
+
+        c.gridy = 0;
+        statusPanel.add(workStatus, c);
+
+        statusPanel.setVisible(false);
+
         frame.add(mainPanel, BorderLayout.LINE_START);
         frame.add(detailPanel, BorderLayout.LINE_END);
-        frame.add(statusLabel, BorderLayout.SOUTH);
+        frame.add(statusPanel, BorderLayout.SOUTH);
         frame.pack();
         frame.setVisible(true);
     }
@@ -147,8 +185,29 @@ public class MainFrame {
      * @param msg the content of msg
      */
     public void changeStatus(String msg) {
-        statusLabel.setText(msg);
+
+        // Adjust the length of status by the width of window
+        int width = frame.getWidth();
+        if (width < 500) {
+            if (msg.length() >= 30) {
+                msg = "..." + msg.substring(msg.length() - 30);
+            }
+        } else {
+            if (msg.length() >= 80) {
+                msg = "..." + msg.substring(msg.length() - 80);
+            }
+        }
+        workStatus.setText(msg);
     }
+
+    /**
+     * A method to add one to the number of scanned files
+     */
+    public void incrementFile() {
+        int current = progressNumber.incrementAndGet();
+        progressStatus.setText(current + "");
+    }
+
 
 
     public DetailPanel getDetailPanel() {
