@@ -64,6 +64,10 @@ public class Settings {
 	public void addSupported_file(String suffix) {
 		this.supported_file.add(suffix);
 	}
+
+	public Set<String> getSupported_file() {
+		return supported_file;
+	}
 	
 	
 	// Regix pattern

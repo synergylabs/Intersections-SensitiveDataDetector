@@ -23,7 +23,7 @@ import capstone.sdd.validator.ValidatorFactory;
 public class MatchWorker implements Callable<Void> {
 
 	// Get the leading and tailing context of sensitive data
-	private static final String CONTEXT_PATTERN = ".{0,20}(%s).{0,20}";
+	private static final String CONTEXT_PATTERN = ".{0,20}[\\D](%s)[\\D].{0,20}";
 
 	private File file;
 
@@ -53,6 +53,7 @@ public class MatchWorker implements Callable<Void> {
 					// Validate the data
 					Validator validator = ValidatorFactory.getValidator(entry.getKey());
 					if (validator == null || validator.validate(m.group(1))) {
+						System.out.println(m.group(1));
 						listener.addResult(entry.getKey(), m.group(1), m.group(0), file);
 					} else {
 						System.out.println("False data: " + m.group(1));
@@ -62,8 +63,6 @@ public class MatchWorker implements Callable<Void> {
 				}
 			}
 		}
-
-		listener.incrementFile();
 		
 		return null;
 	}

@@ -32,6 +32,9 @@ public class MainFrame {
     private GuiListener listener;
     private Settings settings = Settings.getInstance();
 
+    // A task map contains the type of file and a set of files
+    private Map<String, Set<File>> tasks = new HashMap<>();
+
     // A map contains <Type of PII> -- <The corresponding results panel>
     private Map<String, ResultTree> results = new HashMap<>();
 
@@ -44,15 +47,18 @@ public class MainFrame {
 
     private JPanel resultPanel = new JPanel();
     private DetailPanel detailPanel;
-    private JPanel statusPanel = new JPanel();
-
-    private JLabel workStatus = new JLabel();
-    private JLabel progressStatus = new JLabel();
+    private StatusPanel statusPanel = new StatusPanel();
 
     // The number of files scanned
     private AtomicInteger progressNumber = new AtomicInteger(0);
 
     public MainFrame() {
+
+        // init task map
+        for (String type : settings.getSupported_file()) {
+            tasks.put(type, new HashSet<File>());
+        }
+
         listener = new GuiListener(this);
 
         frame = new JFrame(TITLE);
@@ -116,36 +122,7 @@ public class MainFrame {
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         // The panel to display status
-        statusPanel.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
 
-        JLabel workLabel = new JLabel("Current Folder:");
-        workLabel.setFont(new Font("Serif", Font.BOLD, 15));
-
-        JLabel progressLabel = new JLabel("Scanned Files:");
-        progressLabel.setFont(new Font("Serif", Font.BOLD, 15));
-
-
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 1;
-        c.insets = new Insets(0, 10, 0, 0);
-        statusPanel.add(workLabel, c);
-
-        c.gridy = 1;
-        statusPanel.add(progressLabel, c);
-
-        c.gridx = 1;
-        c.anchor = GridBagConstraints.CENTER;
-        c.gridwidth = 2;
-        statusPanel.add(progressStatus, c);
-
-        c.gridy = 0;
-        statusPanel.add(workStatus, c);
-
-        statusPanel.setVisible(false);
 
         frame.add(mainPanel, BorderLayout.LINE_START);
         frame.add(detailPanel, BorderLayout.LINE_END);
@@ -171,7 +148,7 @@ public class MainFrame {
         // Add result to the result tree
         results.get(type).addResult(data, context, file);
 
-        // Add data to the file infomation
+        // Add data to the file information
         if (!fileMap.containsKey(file)) {
             fileMap.put(file, new HashSet<>());
         }
@@ -181,33 +158,17 @@ public class MainFrame {
 
 
     /**
-     * A method to change the status label on the frame
-     * @param msg the content of msg
+     * A method to add task to the task map
+     * @param file the task
      */
-    public void changeStatus(String msg) {
+    public void addTask(File file) {
+        // Get the extension of file
+        int index = file.getName().lastIndexOf('.');
+        String suffix = file.getName().substring(index + 1);
 
-        // Adjust the length of status by the width of window
-        int width = frame.getWidth();
-        if (width < 500) {
-            if (msg.length() >= 30) {
-                msg = "..." + msg.substring(msg.length() - 30);
-            }
-        } else {
-            if (msg.length() >= 80) {
-                msg = "..." + msg.substring(msg.length() - 80);
-            }
-        }
-        workStatus.setText(msg);
+        tasks.get(suffix).add(file);
+        statusPanel.updateFileCount(suffix, tasks.get(suffix).size());
     }
-
-    /**
-     * A method to add one to the number of scanned files
-     */
-    public void incrementFile() {
-        int current = progressNumber.incrementAndGet();
-        progressStatus.setText(current + "");
-    }
-
 
 
     public DetailPanel getDetailPanel() {

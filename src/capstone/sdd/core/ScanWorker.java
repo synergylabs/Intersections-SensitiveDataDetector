@@ -24,7 +24,6 @@ public class ScanWorker implements Callable<Void> {
 
 	@Override
 	public Void call() throws Exception {
-		listener.changeStatus(folder.getAbsolutePath());
 		
 		File[] files = folder.listFiles();
 		for (File file : files) {
@@ -38,7 +37,8 @@ public class ScanWorker implements Callable<Void> {
 				}
 			} else{
 				if (settings.isSupported(file)) {
-					pool.submit(new MatchWorker(file, listener)); 	// send the file to match worker to match
+					listener.addTask(file);
+//					pool.submit(new MatchWorker(file, listener)); 	// send the file to match worker to match
 				}
 			}
 		}

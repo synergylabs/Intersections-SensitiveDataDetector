@@ -32,5 +32,5 @@ public class TxtParser implements Parser {
 		
 		return sb.toString();
 	}
-
+	
 }

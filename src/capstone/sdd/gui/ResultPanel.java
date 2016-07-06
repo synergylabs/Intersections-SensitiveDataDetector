@@ -30,7 +30,7 @@ public class ResultPanel extends JPanel {
         c.gridy = 0;
         this.add(dataType);
 
-
+        this.setVisible(false);
     }
 
 }

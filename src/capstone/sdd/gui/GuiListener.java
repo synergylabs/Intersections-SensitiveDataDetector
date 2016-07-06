@@ -17,13 +17,6 @@ public class GuiListener {
         this.mainFrame = mainFrame;
     }
 
-    public void changeStatus(String msg) {
-        mainFrame.changeStatus(msg);
-    }
-
-    public void incrementFile() {
-        mainFrame.incrementFile();
-    }
 
     /**
      * A method to add result to GUI
@@ -54,7 +47,11 @@ public class GuiListener {
      */
     public void displayFileInfo(File file) {
         Set<String> dataset = mainFrame.getDataInFile(file);
-
         mainFrame.getDetailPanel().displayFile(file, dataset);
+    }
+
+
+    public void addTask(File file) {
+        mainFrame.addTask(file);
     }
 }

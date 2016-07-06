@@ -195,7 +195,6 @@ public class DetailPanel extends JPanel {
 
             buttonPanel.setBackground(Color.white);
             buttonPanel.add(title);
-            buttonPanel.add(new JButton("Set Correct"));
 
             DetailPanel.this.add(buttonPanel, BorderLayout.NORTH);
 

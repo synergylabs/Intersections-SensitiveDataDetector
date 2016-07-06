@@ -33,6 +33,7 @@ public class ParserFactory {
 		
 		switch(type) {
 			case "txt":
+			case "csv":
 				return new TxtParser();
 
 			case "doc":
