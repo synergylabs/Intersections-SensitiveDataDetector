@@ -63,7 +63,9 @@ public class MatchWorker implements Callable<Void> {
 				}
 			}
 		}
-		
+
+		// Tell listener finished the current task
+//		listener.increaseProgress();
 		return null;
 	}
 

@@ -1,5 +1,6 @@
 package capstone.sdd.gui;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -54,4 +55,19 @@ public class GuiListener {
     public void addTask(File file) {
         mainFrame.addTask(file);
     }
+
+    public void finishScanTasks() {
+        mainFrame.onScanFinished();
+    }
+
+    public void increaseProgress() {
+        mainFrame.getStatusPanel().incrementProgress();
+    }
+
+    public void finishMatchTasks() {
+        JOptionPane.showMessageDialog(null, "Match Finished");
+    }
+
+
+
 }

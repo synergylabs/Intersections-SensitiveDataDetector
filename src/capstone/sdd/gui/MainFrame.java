@@ -1,5 +1,7 @@
 package capstone.sdd.gui;
 
+import capstone.sdd.core.CompletionExecutor;
+import capstone.sdd.core.MatchWorker;
 import capstone.sdd.core.ScanWorker;
 import capstone.sdd.core.Settings;
 
@@ -14,8 +16,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -43,7 +43,7 @@ public class MainFrame {
 
     // Executor pool
     private final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
-    ExecutorService pool;
+    CompletionExecutor pool;
 
     private JPanel resultPanel = new JPanel();
     private DetailPanel detailPanel;
@@ -87,8 +87,10 @@ public class MainFrame {
                 resultPanel.removeAll();
                 frame.pack();
 
-                pool = Executors.newFixedThreadPool(POOL_SIZE);
+                pool = new CompletionExecutor(listener);
+                pool.setMode(true);
                 pool.submit(new ScanWorker(settings.getStart_folder(), pool, listener));
+
             }
         });
 
@@ -175,6 +177,10 @@ public class MainFrame {
         return detailPanel;
     }
 
+    public StatusPanel getStatusPanel() {
+        return statusPanel;
+    }
+
 
     /**
      * A method to get the set of sensitive data data in the file
@@ -185,6 +191,10 @@ public class MainFrame {
         return fileMap.get(file);
     }
 
+
+    public void onScanFinished() {
+        new MatchSwingWorker().execute();
+    }
 
     /**
      * A method to get image icon from file
@@ -205,5 +215,28 @@ public class MainFrame {
         return imageIcon;
     }
 
+    class MatchSwingWorker extends SwingWorker<Void, Void> {
 
+        @Override
+        protected Void doInBackground() throws Exception {
+
+            int totalTask = 0;
+            for (Set<File> files : tasks.values()) {
+                totalTask += files.size();
+            }
+
+            statusPanel.showProgressBar(totalTask);
+            pool.setMode(false);
+
+            for (Set<File> files : tasks.values()) {
+                for (File file : files) {
+                    pool.submit(new MatchWorker(file, listener));
+                }
+            }
+
+
+
+            return null;
+        }
+    }
 }

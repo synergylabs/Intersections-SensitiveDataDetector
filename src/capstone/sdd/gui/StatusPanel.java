@@ -16,9 +16,11 @@ public class StatusPanel extends JPanel {
 
     private Map<String, JLabel> labelMap = new HashMap<>();
 
+    private GridBagConstraints c = new GridBagConstraints();
+    private JProgressBar progressBar = new JProgressBar();
+
     public StatusPanel() {
         this.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
 
         JLabel workLabel = new JLabel("Collecting...");
         workLabel.setFont(new Font("Serif", Font.BOLD, 15));
@@ -45,7 +47,35 @@ public class StatusPanel extends JPanel {
             this.add(label, c);
         }
 
+        c.gridy += 1;
+        c.gridx = 0;
+        c.gridwidth = 2;
+        this.add(progressBar, c);
+        progressBar.setStringPainted(true);
+
+        Dimension prefSize = progressBar.getPreferredSize();
+        prefSize.width = 380;
+        progressBar.setPreferredSize(prefSize);
+        progressBar.setVisible(false);
+
+
         this.setVisible(false);
+    }
+
+    /**
+     * A method to add progress bar in the status panel
+     */
+    public void showProgressBar(int maxTasks) {
+        progressBar.setVisible(true);
+        progressBar.setMaximum(maxTasks);
+        progressBar.setValue(0);
+    }
+
+    /**
+     * A method to increase the progress
+     */
+    public void incrementProgress() {
+        progressBar.setValue(progressBar.getValue() + 1);
     }
 
 
