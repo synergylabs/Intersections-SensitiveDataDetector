@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -36,14 +37,13 @@ public class MainFrame {
     private Map<String, Set<File>> tasks = new HashMap<>();
 
     // A map contains <Type of PII> -- <The corresponding results panel>
-    private Map<String, ResultTree> results = new HashMap<>();
+    private Map<String, ResultTree> results = new ConcurrentHashMap<>();
 
     // A map contains file and its sensitive data
     private Map<File, Set<String>> fileMap = new HashMap<>();
 
     // Executor pool
-    private final int POOL_SIZE = Runtime.getRuntime().availableProcessors();
-    CompletionExecutor pool;
+    private CompletionExecutor pool;
 
     private JPanel resultPanel = new JPanel();
     private DetailPanel detailPanel;
@@ -115,6 +115,7 @@ public class MainFrame {
         resultPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPanel.setBackground(Color.white);
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.PAGE_AXIS));
+        
 
         JScrollPane scrollPane = new JScrollPane(resultPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -225,7 +226,7 @@ public class MainFrame {
                 totalTask += files.size();
             }
 
-            statusPanel.showProgressBar(totalTask);
+            statusPanel.startMatch(totalTask);
             pool.setMode(false);
 
             for (Set<File> files : tasks.values()) {

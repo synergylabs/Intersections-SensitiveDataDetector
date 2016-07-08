@@ -18,7 +18,7 @@ public class CompletionExecutor extends ThreadPoolExecutor {
     private boolean isScanning;
 
     public CompletionExecutor(GuiListener listener) {
-        super(0, Integer.MAX_VALUE, 1, TimeUnit.SECONDS, new SynchronousQueue<>());
+        super(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
         this.listener = listener;
     }
 

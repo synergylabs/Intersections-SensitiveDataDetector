@@ -60,8 +60,8 @@ public class GuiListener {
         mainFrame.onScanFinished();
     }
 
-    public void increaseProgress() {
-        mainFrame.getStatusPanel().incrementProgress();
+    public void increaseProgress(String type) {
+        mainFrame.getStatusPanel().incrementProgress(type);
     }
 
     public void finishMatchTasks() {

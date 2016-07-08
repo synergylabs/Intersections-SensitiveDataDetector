@@ -26,11 +26,13 @@ public class ResultPanel extends JPanel {
 
         GridBagConstraints c = new GridBagConstraints();
 
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weightx = 1;
         c.gridx = 0;
         c.gridy = 0;
-        this.add(dataType);
+        c.gridwidth = 1;
+        this.add(dataType, c);
 
-        this.setVisible(false);
     }
 
 }

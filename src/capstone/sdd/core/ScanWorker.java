@@ -48,7 +48,6 @@ public class ScanWorker implements Callable<Void> {
 			}
 		}
 
-//		pool.invokeAll(tasks);
 		
 		return null;
 	}

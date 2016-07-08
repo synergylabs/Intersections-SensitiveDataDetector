@@ -64,8 +64,12 @@ public class MatchWorker implements Callable<Void> {
 			}
 		}
 
+		// Get the extension of file
+		int index = file.getName().lastIndexOf('.');
+		String suffix = file.getName().substring(index + 1);
+
 		// Tell listener finished the current task
-//		listener.increaseProgress();
+		listener.increaseProgress(suffix);
 		return null;
 	}
 
