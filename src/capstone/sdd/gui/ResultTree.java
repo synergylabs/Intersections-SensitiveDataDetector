@@ -1,5 +1,7 @@
 package capstone.sdd.gui;
 
+import com.sun.deploy.security.ValidationState;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -9,10 +11,9 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by lieyongzou on 6/19/16.
@@ -29,26 +30,35 @@ public class ResultTree {
     private static final String RIGHT_TEMPLATE = "<html><font color=green><b>%s</b></font></html>";
     private static final String WRONG_TEMPLATE = "<html><font color=red><b>%s</b></font></html>";
 
+    private static final String TYPE_PATTERN = "%s (0 / 0)";
+    private static final String TOTAL_PATTERN = "(.*?/ )\\d+";
+    private static final String COMPLETE_PATTERN = "(.*?\\()\\d+( /.*?)$";
+
     // Name - root node of results
     private Map<String, DefaultMutableTreeNode> result_node_dict = new HashMap<>();
     private Map<String, List<List<String>>> detailed_result_dict = new HashMap<>();
+    private Set<String> target_dataset = new HashSet<>();
+
+
+    // The number of data which has been evaluated
+    private AtomicInteger completeCount = new AtomicInteger(0);
 
     private JTree tree;
     private DefaultTreeModel model;
     private GuiListener listener;
 
+
     public ResultTree(String type, GuiListener listener) {
 
         this.listener = listener;
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(type);
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(String.format(TYPE_PATTERN, type));
         tree = new JTree(root);
         tree.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         model = (DefaultTreeModel)tree.getModel();
 
         // Remove the select background
         DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
-//        renderer.setBackgroundSelectionColor(Color.WHITE);
 
         tree.addMouseListener(new MouseAdapter() {
 
@@ -110,6 +120,10 @@ public class ResultTree {
         list.add(file.getAbsolutePath());
         detailed_result_dict.get(data).add(list);
 
+        // Add the data to the target set
+        target_dataset.add(data);
+        addTotalTag();
+
     }
 
 
@@ -129,7 +143,37 @@ public class ResultTree {
         String text = isCorrect ? String.format(RIGHT_TEMPLATE, data) : String.format(WRONG_TEMPLATE, data);
         node.setUserObject(text);
         model.reload();
+
+        // The data has been evaluated, remove it from target set
+        target_dataset.remove(data);
+        addCompleteTag();
     }
 
+
+    /**
+     * A method to increase the number of total number of sensitive data in this type
+     */
+    private void addTotalTag() {
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        String text = root.getUserObject().toString();
+
+        text = text.replaceAll(TOTAL_PATTERN, "$1" + result_node_dict.size());
+        root.setUserObject(text);
+        model.reload();
+    }
+
+    /**
+     * A method to increase the number of complete number of sensitive data in this type
+     */
+    private void addCompleteTag() {
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        String text = root.getUserObject().toString();
+
+        System.out.println((result_node_dict.size() - target_dataset.size()));
+        text = text.replaceAll(COMPLETE_PATTERN, "$1" + (result_node_dict.size() - target_dataset.size()) + "$2");
+        System.out.println(text);
+        root.setUserObject(text);
+        model.reload();
+    }
 
 }
