@@ -27,7 +27,10 @@ public class GuiListener {
      * @param file the file
      */
     public void addResult(String type, String data, String context, File file) {
-        mainFrame.getResultTree(type, data, context, file);
+        ResultTree tree = mainFrame.getResultTree(type);
+
+        tree.addResult(data, context, file);
+        mainFrame.addDataInFile(data, file);
     }
 
 
@@ -66,6 +69,12 @@ public class GuiListener {
 
     public void finishMatchTasks() {
         JOptionPane.showMessageDialog(null, "Match Finished");
+    }
+
+    public void setCorrectness(String type, String data, boolean isCorrect) {
+        ResultTree tree = mainFrame.getResultTree(type);
+
+        tree.setCorrectness(data, isCorrect);
     }
 
 

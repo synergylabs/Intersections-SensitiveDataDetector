@@ -4,10 +4,13 @@ import capstone.sdd.parser.ParserFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -24,14 +27,16 @@ public class DetailPanel extends JPanel {
     private final static int WINDOW_HEIGHT = 500;
 
     JFrame mainFrame;
+    private GuiListener listener;
 
 
     // Define the highlight style
     private DefaultHighlighter highlighter;
     private DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.yellow);
 
-    public DetailPanel(JFrame mainFrame) {
+    public DetailPanel(JFrame mainFrame, GuiListener listener) {
         this.mainFrame = mainFrame;
+        this.listener = listener;
         this.setBackground(Color.WHITE);
     }
 
@@ -43,7 +48,7 @@ public class DetailPanel extends JPanel {
      * @param detailed_dict the detailed information of specific data
      */
     public void displayDetails(String type, String data, List<List<String>> detailed_dict) {
-        new DetailWorker(type, data, detailed_dict).execute();
+        new DataWorker(type, data, detailed_dict).execute();
     }
 
     /**
@@ -83,13 +88,13 @@ public class DetailPanel extends JPanel {
     /**
      * A worker thread to display details information
      */
-    class DetailWorker extends SwingWorker<Void, Void> {
+    class DataWorker extends SwingWorker<Void, Void> {
 
         private String type;
         private String data;
         private List<List<String>> detailed_dict;
 
-        public DetailWorker(String type, String data, List<List<String>> detailed_dict) {
+        public DataWorker(String type, String data, List<List<String>> detailed_dict) {
             this.type = type;
             this.data = data;
             this.detailed_dict = detailed_dict;
@@ -103,36 +108,18 @@ public class DetailPanel extends JPanel {
             DetailPanel.this.setLayout(new BorderLayout());
             DetailPanel.this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setBackground(Color.white);
+            JPanel titlePanel = new JPanel();
+            titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+            titlePanel.setBackground(Color.white);
+            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, 35));
 
             JLabel title = new JLabel(type + " : " + data);
             title.setFont(new Font("Serif", Font.BOLD, 15));
             title.setHorizontalAlignment(SwingConstants.CENTER);
 
-            JLabel correct_btm = new JLabel(getImage("correct.png"));
-            correct_btm.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    title.setForeground(Color.GREEN);
-                }
-            });
+            titlePanel.add(title);
 
-            JLabel wrong_btm = new JLabel(getImage("wrong.png"));
-            wrong_btm.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    title.setForeground(Color.RED);
-                }
-            });
-
-
-            buttonPanel.add(title);
-            buttonPanel.add(correct_btm);
-            buttonPanel.add(wrong_btm);
-
-
-            DetailPanel.this.add(buttonPanel, BorderLayout.NORTH);
+            DetailPanel.this.add(titlePanel, BorderLayout.NORTH);
 
             // Add content
             JTextPane textPane = new JTextPane();
@@ -157,6 +144,36 @@ public class DetailPanel extends JPanel {
 
             JScrollPane scrollPane = new JScrollPane(textPane);
             DetailPanel.this.add(scrollPane, BorderLayout.CENTER);
+
+            // Button to set the correctness of data
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.black));
+            buttonPanel.setLayout(new GridLayout(1, 2));
+            buttonPanel.setBackground(Color.white);
+
+            JButton rightButton = new JButton();
+            rightButton.setIcon(getImage("correct.png"));
+            rightButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    listener.setCorrectness(type, data, true);
+                }
+            });
+
+            JButton wrongButton = new JButton();
+            wrongButton.setIcon(getImage("wrong.png"));
+            wrongButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    listener.setCorrectness(type, data, false);
+                }
+            });
+
+            buttonPanel.add(rightButton);
+            buttonPanel.add(wrongButton);
+
+            DetailPanel.this.add(buttonPanel, BorderLayout.SOUTH);
 
             mainFrame.pack();
 
@@ -187,16 +204,18 @@ public class DetailPanel extends JPanel {
             DetailPanel.this.setLayout(new BorderLayout());
             DetailPanel.this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
-            JPanel buttonPanel = new JPanel();
+            JPanel titlePanel = new JPanel();
+            titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, 35));
 
             JLabel title = new JLabel(file.getName());
             title.setFont(new Font("Serif", Font.BOLD, 15));
             title.setHorizontalAlignment(SwingConstants.CENTER);
 
-            buttonPanel.setBackground(Color.white);
-            buttonPanel.add(title);
+            titlePanel.setBackground(Color.white);
+            titlePanel.add(title);
 
-            DetailPanel.this.add(buttonPanel, BorderLayout.NORTH);
+            DetailPanel.this.add(titlePanel, BorderLayout.NORTH);
 
             // Add content
             JTextPane textPane = new JTextPane();

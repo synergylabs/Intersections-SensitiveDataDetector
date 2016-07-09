@@ -2,8 +2,10 @@ package capstone.sdd.gui;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -24,6 +26,9 @@ import java.util.Map;
  */
 public class ResultTree {
 
+    private static final String RIGHT_TEMPLATE = "<html><font color=green><b>%s</b></font></html>";
+    private static final String WRONG_TEMPLATE = "<html><font color=red><b>%s</b></font></html>";
+
     // Name - root node of results
     private Map<String, DefaultMutableTreeNode> result_node_dict = new HashMap<>();
     private Map<String, List<List<String>>> detailed_result_dict = new HashMap<>();
@@ -41,6 +46,10 @@ public class ResultTree {
         tree.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         model = (DefaultTreeModel)tree.getModel();
 
+        // Remove the select background
+        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
+//        renderer.setBackgroundSelectionColor(Color.WHITE);
+
         tree.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -54,7 +63,14 @@ public class ResultTree {
                     Object[] nodes = treePath.getPath();
 
                     if (nodes.length == 2) {
-                        String data = nodes[1].toString();
+
+                        String data = "";
+                        for (Map.Entry<String, DefaultMutableTreeNode> entry : result_node_dict.entrySet()) {
+                            if (nodes[1] == entry.getValue()) {
+                                data = entry.getKey();
+                            }
+                        }
+
                         listener.displayDataInfo(type, data, detailed_result_dict.get(data));
                     }
 
@@ -66,7 +82,6 @@ public class ResultTree {
                 }
             }
         });
-
     }
 
     /**
@@ -100,6 +115,20 @@ public class ResultTree {
 
     public JTree getTree() {
         return tree;
+    }
+
+
+    /**
+     * A method to change the color of text according to the correctness of data
+     * @param data the data
+     * @param isCorrect true the data is correct
+     *             false the data is wrong
+     */
+    public void setCorrectness(String data, boolean isCorrect) {
+        DefaultMutableTreeNode node = result_node_dict.get(data);
+        String text = isCorrect ? String.format(RIGHT_TEMPLATE, data) : String.format(WRONG_TEMPLATE, data);
+        node.setUserObject(text);
+        model.reload();
     }
 
 

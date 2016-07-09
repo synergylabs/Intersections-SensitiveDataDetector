@@ -66,7 +66,7 @@ public class MainFrame {
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
 
-        detailPanel = new DetailPanel(frame);
+        detailPanel = new DetailPanel(frame, listener);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
@@ -100,7 +100,7 @@ public class MainFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 pool.shutdownNow();
-                statusPanel.setVisible(false);
+//                statusPanel.setVisible(false);
                 progressNumber = new AtomicInteger(0);
             }
         });
@@ -115,11 +115,13 @@ public class MainFrame {
         resultPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPanel.setBackground(Color.white);
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.PAGE_AXIS));
-        
+
+
+
 
         JScrollPane scrollPane = new JScrollPane(resultPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+//        scrollPane.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
@@ -139,7 +141,7 @@ public class MainFrame {
      * A method to get the corresponding result panel for listener to add results
      * @param type the type of data
      */
-    public void getResultTree(String type, String data, String context, File file) {
+    public ResultTree getResultTree(String type) {
 
         // If no type existed in the frame, add it to results map
         if (!results.containsKey(type)) {
@@ -148,8 +150,15 @@ public class MainFrame {
             resultPanel.add(tree.getTree());
         }
 
-        // Add result to the result tree
-        results.get(type).addResult(data, context, file);
+        return results.get(type);
+    }
+
+    /**
+     * A method to add sensitive data to file map
+     * @param data the data
+     * @param file the file
+     */
+    public void addDataInFile(String data, File file) {
 
         // Add data to the file information
         if (!fileMap.containsKey(file)) {

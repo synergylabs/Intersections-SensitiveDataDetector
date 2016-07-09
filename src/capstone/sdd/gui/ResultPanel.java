@@ -19,7 +19,7 @@ public class ResultPanel extends JPanel {
 
     public ResultPanel(String type) {
 
-        this.setLayout(new FlowLayout(FlowLayout.LEFT));
+        this.setLayout(new GridBagLayout());
 
         JLabel dataType = new JLabel(type);
         dataType.setFont(new Font("Serif", Font.BOLD, 10));
@@ -28,10 +28,14 @@ public class ResultPanel extends JPanel {
 
         c.anchor = GridBagConstraints.NORTHWEST;
         c.weightx = 1;
+        c.weighty = 1;
         c.gridx = 0;
         c.gridy = 0;
-        c.gridwidth = 1;
         this.add(dataType, c);
+
+//        c.insets = new Insets(0, 20, 0, 0);
+        c.gridy += 1;
+        this.add(new JLabel("12345"), c);
 
     }
 
