@@ -36,21 +36,24 @@ public class ResultTree {
 
     // Name - root node of results
     private Map<String, DefaultMutableTreeNode> result_node_dict = new HashMap<>();
+
+    // data - [context, filepath]
     private Map<String, List<List<String>>> detailed_result_dict = new HashMap<>();
+
+    // The dataset contains all the data needs to be evaluate
     private Set<String> target_dataset = new HashSet<>();
 
+    // The dataset contains all the correct data
+    private Set<String> correct_dataset = new HashSet<>();
 
-    // The number of data which has been evaluated
-    private AtomicInteger completeCount = new AtomicInteger(0);
 
     private JTree tree;
     private DefaultTreeModel model;
-    private GuiListener listener;
+    private String type;
 
 
     public ResultTree(String type, GuiListener listener) {
-
-        this.listener = listener;
+        this.type = type;
 
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(String.format(TYPE_PATTERN, type));
         tree = new JTree(root);
@@ -147,8 +150,22 @@ public class ResultTree {
         // The data has been evaluated, remove it from target set
         target_dataset.remove(data);
         addCompleteTag();
+
+        if (isCorrect) {
+            correct_dataset.add(data);
+        } else if (correct_dataset.contains(data)) {
+            correct_dataset.remove(data);
+        }
     }
 
+
+    /**
+     * A method to generate report
+     */
+    public void report() {
+        System.out.println("---------------------------" + type + "-------------------------------");
+        System.out.println("Correct percentage:" + (correct_dataset.size() / (float)result_node_dict.size() * 100) + "%");
+    }
 
     /**
      * A method to increase the number of total number of sensitive data in this type
@@ -169,11 +186,10 @@ public class ResultTree {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
         String text = root.getUserObject().toString();
 
-        System.out.println((result_node_dict.size() - target_dataset.size()));
         text = text.replaceAll(COMPLETE_PATTERN, "$1" + (result_node_dict.size() - target_dataset.size()) + "$2");
-        System.out.println(text);
         root.setUserObject(text);
         model.reload();
     }
+
 
 }

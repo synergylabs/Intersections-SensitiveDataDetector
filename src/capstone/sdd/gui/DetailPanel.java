@@ -25,6 +25,7 @@ public class DetailPanel extends JPanel {
 
     private final static int WINDOW_WIDTH = 400;
     private final static int WINDOW_HEIGHT = 500;
+    private final static int TITLE_HEIGHT = 37;
 
     JFrame mainFrame;
     private GuiListener listener;
@@ -111,7 +112,7 @@ public class DetailPanel extends JPanel {
             JPanel titlePanel = new JPanel();
             titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
             titlePanel.setBackground(Color.white);
-            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, 35));
+            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, TITLE_HEIGHT));
 
             JLabel title = new JLabel(type + " : " + data);
             title.setFont(new Font("Serif", Font.BOLD, 15));
@@ -151,7 +152,7 @@ public class DetailPanel extends JPanel {
             buttonPanel.setLayout(new GridLayout(1, 2));
             buttonPanel.setBackground(Color.white);
 
-            JButton rightButton = new JButton();
+            JButton rightButton = new JButton("Correct");
             rightButton.setIcon(getImage("correct.png"));
             rightButton.addActionListener(new ActionListener() {
 
@@ -161,7 +162,7 @@ public class DetailPanel extends JPanel {
                 }
             });
 
-            JButton wrongButton = new JButton();
+            JButton wrongButton = new JButton("Wrong");
             wrongButton.setIcon(getImage("wrong.png"));
             wrongButton.addActionListener(new ActionListener() {
                 @Override
@@ -206,7 +207,7 @@ public class DetailPanel extends JPanel {
 
             JPanel titlePanel = new JPanel();
             titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, 35));
+            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, TITLE_HEIGHT));
 
             JLabel title = new JLabel(file.getName());
             title.setFont(new Font("Serif", Font.BOLD, 15));

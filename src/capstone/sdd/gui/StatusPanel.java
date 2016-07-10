@@ -40,7 +40,7 @@ public class StatusPanel extends JPanel {
         c.insets = new Insets(0, 10, 0, 0);
         this.add(workLabel, c);
 
-        JLabel label = new JLabel("Found:");
+        JLabel label = new JLabel("Total:");
         label.setFont(new Font("Serif", Font.BOLD, 15));
         c.gridx = 1;
         this.add(label, c);

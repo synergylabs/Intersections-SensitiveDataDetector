@@ -11,6 +11,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -46,6 +48,7 @@ public class MainFrame {
     private CompletionExecutor pool;
 
     private JPanel resultPanel = new JPanel();
+    private JPanel buttonPanel = new JPanel();
     private DetailPanel detailPanel;
     private StatusPanel statusPanel = new StatusPanel();
 
@@ -73,15 +76,16 @@ public class MainFrame {
         mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
         // Add button panel to frame
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.setLayout(new GridLayout(1, 3));
         buttonPanel.setBackground(Color.WHITE);
 
 
-        JLabel scan_btm = new JLabel("Start", getImage("start.png"), JLabel.CENTER);
-        scan_btm.addMouseListener(new MouseAdapter() {
+        JButton scan_btm = new JButton("Start");
+        scan_btm.setFocusPainted(false);
+        scan_btm.setIcon(getImage("start.png"));
+        scan_btm.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 // Clear the result Panel
                 statusPanel.setVisible(true);
                 resultPanel.removeAll();
@@ -90,17 +94,17 @@ public class MainFrame {
                 pool = new CompletionExecutor(listener);
                 pool.setMode(true);
                 pool.submit(new ScanWorker(settings.getStart_folder(), pool, listener));
-
             }
         });
 
 
-        JLabel stop_btm = new JLabel("Stop", getImage("stop.png"), JLabel.CENTER);
-        stop_btm.addMouseListener(new MouseAdapter() {
+        JButton stop_btm = new JButton("Stop");
+        stop_btm.setFocusPainted(false);
+        stop_btm.setIcon(getImage("stop.png"));
+        stop_btm.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 pool.shutdownNow();
-//                statusPanel.setVisible(false);
                 progressNumber = new AtomicInteger(0);
             }
         });
@@ -117,11 +121,8 @@ public class MainFrame {
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.PAGE_AXIS));
 
 
-
-
         JScrollPane scrollPane = new JScrollPane(resultPanel);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-//        scrollPane.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
@@ -206,6 +207,23 @@ public class MainFrame {
         new MatchSwingWorker().execute();
     }
 
+    public void onMatchFinished() {
+        JButton report_btm = new JButton("Generate Report");
+        report_btm.setIcon(getImage("report.png"));
+        report_btm.setFocusPainted(false);
+        report_btm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (ResultTree tree : results.values()) {
+                    tree.report();
+                }
+            }
+        });
+
+        buttonPanel.add(report_btm);
+        buttonPanel.revalidate();
+    }
+
     /**
      * A method to get image icon from file
      * @param name the name of image
@@ -238,11 +256,11 @@ public class MainFrame {
             statusPanel.startMatch(totalTask);
             pool.setMode(false);
 
-            for (Set<File> files : tasks.values()) {
-                for (File file : files) {
+//            for (Set<File> files : tasks.values()) {
+                for (File file : tasks.get("txt")) {
                     pool.submit(new MatchWorker(file, listener));
                 }
-            }
+//            }
 
 
 

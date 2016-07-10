@@ -68,6 +68,7 @@ public class GuiListener {
     }
 
     public void finishMatchTasks() {
+        mainFrame.onMatchFinished();
         JOptionPane.showMessageDialog(null, "Match Finished");
     }
 
