@@ -2,9 +2,16 @@ package capstone.sdd.main;
 
 import capstone.sdd.core.Settings;
 import capstone.sdd.gui.MainFrame;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +46,37 @@ public class Main {
 			new MainFrame();
 		});
 
+//		PDDocument doc = new PDDocument();
+//		PDPage page = new PDPage();
+//		doc.addPage( page );
+//
+//
+//
+//		String[][] content = {{"a","b", "1"},
+//				{"c","d"},
+//				{"e","f", "3"},
+//				{"g","h", "4"},
+//				{"i","j", "5"}} ;
+//
+//		try {
+//			PDPageContentStream contentStream = new PDPageContentStream(doc, page);
+//
+//			drawTable(page, contentStream, 700, 100, content);
+//			contentStream.close();
+//			doc.save("/Users/lieyongzou/Documents/test.pdf" );
+//
+//		} catch(IOException e) {
+//			e.printStackTrace();
+//		}
+
+
+
+
+
+
 
 	}
+
+
 
 }

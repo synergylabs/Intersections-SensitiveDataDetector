@@ -15,7 +15,7 @@ public class CompletionExecutor extends ThreadPoolExecutor {
 
     // true if all the tasks are to scan the device
     // false if all the tasks are to match the content
-    private boolean isScanning;
+    private int mode;
 
     public CompletionExecutor(GuiListener listener) {
         super(Runtime.getRuntime().availableProcessors(), Integer.MAX_VALUE, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
@@ -28,8 +28,8 @@ public class CompletionExecutor extends ThreadPoolExecutor {
     }
 
 
-    public void setMode(boolean flag) {
-        isScanning = flag;
+    public void setMode(int flag) {
+        mode = flag;
     }
 
     @Override
@@ -46,11 +46,12 @@ public class CompletionExecutor extends ThreadPoolExecutor {
         super.afterExecute(r, t);
         int count = executing.decrementAndGet();
         if(count == 0) {
-            if (isScanning) {
+            if (mode == 0) {
                 listener.finishScanTasks();
-            } else {
+            } else if (mode == 1) {
                 listener.finishMatchTasks();
-                this.shutdown();
+            } else if (mode == 2) {
+
             }
         }
     }

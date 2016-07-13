@@ -1,9 +1,6 @@
 package capstone.sdd.gui;
 
-import capstone.sdd.core.CompletionExecutor;
-import capstone.sdd.core.MatchWorker;
-import capstone.sdd.core.ScanWorker;
-import capstone.sdd.core.Settings;
+import capstone.sdd.core.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,11 +10,10 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -92,7 +88,7 @@ public class MainFrame {
                 frame.pack();
 
                 pool = new CompletionExecutor(listener);
-                pool.setMode(true);
+                pool.setMode(0);
                 pool.submit(new ScanWorker(settings.getStart_folder(), pool, listener));
             }
         });
@@ -214,9 +210,7 @@ public class MainFrame {
         report_btm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (ResultTree tree : results.values()) {
-                    tree.report();
-                }
+                new GroupWorker().execute();
             }
         });
 
@@ -254,16 +248,35 @@ public class MainFrame {
             }
 
             statusPanel.startMatch(totalTask);
-            pool.setMode(false);
+            pool.setMode(1);
 
-//            for (Set<File> files : tasks.values()) {
-                for (File file : tasks.get("txt")) {
+            for (Set<File> files : tasks.values()) {
+                for (File file : files) {
                     pool.submit(new MatchWorker(file, listener));
                 }
-//            }
+            }
+
+            return null;
+        }
+    }
 
 
+    class GroupWorker extends SwingWorker<Void, Void> {
 
+        @Override
+        protected Void doInBackground() throws Exception {
+
+            Map<String, Map<String, List<List<String>>>> detailedDatasetMap = new HashMap<>();
+            Map<String, Set<String>> correctDatasetMap = new HashMap<>();
+
+            for (ResultTree tree : results.values()) {
+                String datatype = tree.getType();
+                detailedDatasetMap.put(datatype, tree.getDetailedResults());
+                correctDatasetMap.put(datatype, tree.getCorrectDataset());
+            }
+
+            pool.setMode(2);
+            pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap));
             return null;
         }
     }

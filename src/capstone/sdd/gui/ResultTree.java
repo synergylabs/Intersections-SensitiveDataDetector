@@ -40,6 +40,8 @@ public class ResultTree {
     // data - [context, filepath]
     private Map<String, List<List<String>>> detailed_result_dict = new HashMap<>();
 
+
+
     // The dataset contains all the data needs to be evaluate
     private Set<String> target_dataset = new HashSet<>();
 
@@ -95,6 +97,18 @@ public class ResultTree {
                 }
             }
         });
+    }
+
+    public Set<String> getCorrectDataset() {
+        return correct_dataset;
+    }
+
+    public Map<String, List<List<String>>> getDetailedResults() {
+        return detailed_result_dict;
+    }
+
+    public String getType() {
+        return type;
     }
 
     /**

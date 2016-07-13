@@ -42,6 +42,7 @@ public class GuiListener {
      */
     public void displayDataInfo(String type, String data, List<List<String>> detailed_dict) {
         mainFrame.getDetailPanel().displayDetails(type, data, detailed_dict);
+        mainFrame.getStatusPanel().resizeProgressBar();
     }
 
 
@@ -52,6 +53,7 @@ public class GuiListener {
     public void displayFileInfo(File file) {
         Set<String> dataset = mainFrame.getDataInFile(file);
         mainFrame.getDetailPanel().displayFile(file, dataset);
+        mainFrame.getStatusPanel().resizeProgressBar();
     }
 
 

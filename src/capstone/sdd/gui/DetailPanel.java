@@ -1,13 +1,12 @@
 package capstone.sdd.gui;
 
 import capstone.sdd.parser.ParserFactory;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -128,11 +127,18 @@ public class DetailPanel extends JPanel {
             StyledDocument doc = textPane.getStyledDocument();
             DetailPanel.this.highlighter = (DefaultHighlighter) textPane.getHighlighter();
 
+            SimpleAttributeSet attributeSet = new SimpleAttributeSet();
+            attributeSet.addAttribute(StyleConstants.CharacterConstants.Bold, Boolean.TRUE);
+
             try {
 
                 for (List<String> pair : detailed_dict) {
-                    doc.insertString(doc.getLength(), pair.get(0) + "\n", null);
+                    doc.insertString(doc.getLength(), "File: \n", attributeSet);
                     doc.insertString(doc.getLength(), pair.get(1) + "\n\n", null);
+
+                    doc.insertString(doc.getLength(), "Context: \n", attributeSet);
+                    doc.insertString(doc.getLength(), pair.get(0) + "\n", null);
+                    doc.insertString(doc.getLength(), "________________________________________________________\n\n", null);
                 }
 
 
@@ -153,6 +159,7 @@ public class DetailPanel extends JPanel {
             buttonPanel.setBackground(Color.white);
 
             JButton rightButton = new JButton("Correct");
+            rightButton.setFocusPainted(false);
             rightButton.setIcon(getImage("correct.png"));
             rightButton.addActionListener(new ActionListener() {
 
@@ -163,6 +170,7 @@ public class DetailPanel extends JPanel {
             });
 
             JButton wrongButton = new JButton("Wrong");
+            wrongButton.setFocusPainted(false);
             wrongButton.setIcon(getImage("wrong.png"));
             wrongButton.addActionListener(new ActionListener() {
                 @Override

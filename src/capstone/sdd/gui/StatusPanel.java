@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class StatusPanel extends JPanel {
 
+    private static final int PB_WIDTH = 390;
+
     private Settings settings = Settings.getInstance();
 
     // A map contains the type and two labels, one for total, one for finished
@@ -78,7 +80,7 @@ public class StatusPanel extends JPanel {
         progressBar.setStringPainted(true);
 
         Dimension prefSize = progressBar.getPreferredSize();
-        prefSize.width = 380;
+        prefSize.width = PB_WIDTH;
         progressBar.setPreferredSize(prefSize);
         progressBar.setVisible(false);
 
@@ -116,5 +118,12 @@ public class StatusPanel extends JPanel {
      */
     public void updateFileCount(String type, int count) {
         labelMap.get(type)[0].setText(count + "");
+    }
+
+
+    public void resizeProgressBar() {
+        Dimension dimension = progressBar.getPreferredSize();
+        dimension.width = PB_WIDTH * 2;
+        progressBar.setPreferredSize(dimension);
     }
 }
