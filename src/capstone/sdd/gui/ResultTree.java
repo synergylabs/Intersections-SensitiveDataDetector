@@ -2,14 +2,13 @@ package capstone.sdd.gui;
 
 import com.sun.deploy.security.ValidationState;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -60,10 +59,9 @@ public class ResultTree {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode(String.format(TYPE_PATTERN, type));
         tree = new JTree(root);
         tree.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-        model = (DefaultTreeModel)tree.getModel();
+        tree.setCellRenderer(new CustomizedRenderer());
 
-        // Remove the select background
-        DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
+        model = (DefaultTreeModel)tree.getModel();
 
         tree.addMouseListener(new MouseAdapter() {
 
@@ -97,6 +95,15 @@ public class ResultTree {
                 }
             }
         });
+    }
+
+    /**
+     * A method to test whether all the data has been evaluated
+     * @return the number of data without being evaluated
+     *
+     */
+    public int getRestDataNumber() {
+        return target_dataset.size();
     }
 
     public Set<String> getCorrectDataset() {
@@ -174,14 +181,6 @@ public class ResultTree {
 
 
     /**
-     * A method to generate report
-     */
-    public void report() {
-        System.out.println("---------------------------" + type + "-------------------------------");
-        System.out.println("Correct percentage:" + (correct_dataset.size() / (float)result_node_dict.size() * 100) + "%");
-    }
-
-    /**
      * A method to increase the number of total number of sensitive data in this type
      */
     private void addTotalTag() {
@@ -203,6 +202,44 @@ public class ResultTree {
         text = text.replaceAll(COMPLETE_PATTERN, "$1" + (result_node_dict.size() - target_dataset.size()) + "$2");
         root.setUserObject(text);
         model.reload();
+    }
+
+
+    class CustomizedRenderer extends DefaultTreeCellRenderer {
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+            if (hasFocus) {
+                this.setFont(getFont().deriveFont(Font.BOLD + Font.ITALIC));
+            } else {
+                this.setFont(getFont().deriveFont(Font.PLAIN));
+            }
+
+            if (!leaf) {
+                this.setIcon(getImage("data.png"));
+            }
+            return this;
+        }
+    }
+
+    /**
+     * A method to get image icon from file
+     * @param name the name of image
+     * @return the image icon
+     */
+    private ImageIcon getImage(String name) {
+        ImageIcon imageIcon = null;
+
+        try {
+            BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
+            imageIcon = new ImageIcon(bufferedImage);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return imageIcon;
     }
 
 

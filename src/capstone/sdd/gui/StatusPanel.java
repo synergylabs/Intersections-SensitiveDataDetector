@@ -121,6 +121,9 @@ public class StatusPanel extends JPanel {
     }
 
 
+    /**
+     * A method to resize the progress bar when expand the detail panel
+     */
     public void resizeProgressBar() {
         Dimension dimension = progressBar.getPreferredSize();
         dimension.width = PB_WIDTH * 2;

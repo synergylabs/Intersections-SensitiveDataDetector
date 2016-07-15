@@ -1,5 +1,6 @@
 package capstone.sdd.core;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
@@ -82,9 +83,79 @@ public class ReportGenerator implements Callable<Void> {
             }
         }
 
+
+
         System.out.println("Total number of files:" + totalFileNumber);
         for (String type : totalFileMap.keySet()) {
             System.out.println(type + ":    "  + totalFileMap.get(type).size() + "    " + fileWithData.get(type) + "    " + fileWithCorrectData.get(type));
+        }
+
+
+        String[][] contentForFile = new String[totalFileMap.size() + 1][4];
+        contentForFile[0][0] = "File Type";
+        contentForFile[0][1] = "File Number";
+        contentForFile[0][2] = "File with Data";
+        contentForFile[0][3] = "True Positive";
+
+        int row = 1;
+        for (String type : totalFileMap.keySet()) {
+            contentForFile[row][0] = type;
+            contentForFile[row][1] = totalFileMap.get(type).size() + "";
+            contentForFile[row][2] = fileWithData.get(type) + "";
+            contentForFile[row][3] = fileWithCorrectData.get(type) + "";
+
+            row += 1;
+        }
+
+        System.out.println(contentForFile);
+
+		PDDocument doc = new PDDocument();
+		PDPage page = new PDPage();
+		doc.addPage( page );
+
+
+		try {
+			PDPageContentStream contentStream = new PDPageContentStream(doc, page);
+
+			drawTable(page, contentStream, 700, 100, contentForFile);
+
+            drawTable(page, contentStream, 700, 100, contentForFile);
+			contentStream.close();
+			doc.save("/Users/lieyongzou/Documents/test.pdf" );
+
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+
+        // Data part
+        int totalDistinctDataNumber = 0;
+        int totalDataNumber = 0;
+
+        // Total number of distinct data
+        Map<String, Integer> distinctDataMap = new HashMap<>();
+
+        // Total number of data which contains same data
+        Map<String, Integer> totalDataMap = new HashMap<>();
+
+        for (String datatype : detailedDatasetMap.keySet()) {
+            int localDistinct = detailedDatasetMap.get(datatype).size();
+            distinctDataMap.put(datatype, localDistinct);
+            totalDistinctDataNumber += localDistinct;
+
+            int count = 0;
+            Map<String, List<List<String>>> dataMap = detailedDatasetMap.get(datatype);
+            for (String data : dataMap.keySet()) {
+                count += dataMap.get(data).size();
+            }
+
+            totalDataMap.put(datatype, count);
+            totalDataNumber += count;
+        }
+
+        System.out.println("There are total " + totalDataNumber + "Sensitive data, and " + totalDistinctDataNumber + " distinct sensitive data");
+        for (String type : totalDataMap.keySet()) {
+            System.out.println(type + ":    "  + totalDataMap.get(type) + "    " + distinctDataMap.get(type));
         }
 
         return null;

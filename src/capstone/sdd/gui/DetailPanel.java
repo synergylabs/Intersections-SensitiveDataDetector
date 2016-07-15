@@ -103,6 +103,8 @@ public class DetailPanel extends JPanel {
         @Override
         protected Void doInBackground() throws Exception {
 
+            DetailPanel.this.setVisible(true);
+
             DetailPanel.this.removeAll();
 
             DetailPanel.this.setLayout(new BorderLayout());
@@ -153,10 +155,18 @@ public class DetailPanel extends JPanel {
             DetailPanel.this.add(scrollPane, BorderLayout.CENTER);
 
             // Button to set the correctness of data
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.black));
-            buttonPanel.setLayout(new GridLayout(1, 2));
-            buttonPanel.setBackground(Color.white);
+            JPanel questionPanel = new JPanel();
+            questionPanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 0, Color.black),
+                    BorderFactory.createEmptyBorder(10, 0, 5, 0))
+            );
+            questionPanel.setLayout(new BorderLayout());
+            questionPanel.setBackground(Color.white);
+
+            JLabel questionLabel = new JLabel("Do you think this " + type + " is correct?");
+            questionLabel.setFont(new Font("Serif", Font.BOLD, 15));
+            questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            questionPanel.add(questionLabel, BorderLayout.NORTH);
 
             JButton rightButton = new JButton("Correct");
             rightButton.setFocusPainted(false);
@@ -179,10 +189,15 @@ public class DetailPanel extends JPanel {
                 }
             });
 
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setBackground(Color.white);
+            buttonPanel.setLayout(new GridLayout(1, 2));
             buttonPanel.add(rightButton);
             buttonPanel.add(wrongButton);
 
-            DetailPanel.this.add(buttonPanel, BorderLayout.SOUTH);
+            questionPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            DetailPanel.this.add(questionPanel, BorderLayout.SOUTH);
 
             mainFrame.pack();
 
@@ -207,6 +222,8 @@ public class DetailPanel extends JPanel {
 
         @Override
         protected Void doInBackground() throws Exception {
+
+            DetailPanel.this.setVisible(true);
 
             DetailPanel.this.removeAll();
 

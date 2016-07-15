@@ -32,13 +32,13 @@ public class MainFrame {
     private Settings settings = Settings.getInstance();
 
     // A task map contains the type of file and a set of files
-    private Map<String, Set<File>> tasks = new HashMap<>();
+    private Map<String, Set<File>> tasks;
 
     // A map contains <Type of PII> -- <The corresponding results panel>
-    private Map<String, ResultTree> results = new ConcurrentHashMap<>();
+    private Map<String, ResultTree> results;
 
     // A map contains file and its sensitive data
-    private Map<File, Set<String>> fileMap = new HashMap<>();
+    private Map<File, Set<String>> fileMap;
 
     // Executor pool
     private CompletionExecutor pool;
@@ -48,15 +48,9 @@ public class MainFrame {
     private DetailPanel detailPanel;
     private StatusPanel statusPanel = new StatusPanel();
 
-    // The number of files scanned
-    private AtomicInteger progressNumber = new AtomicInteger(0);
-
     public MainFrame() {
 
         // init task map
-        for (String type : settings.getSupported_file()) {
-            tasks.put(type, new HashSet<File>());
-        }
 
         listener = new GuiListener(this);
 
@@ -82,9 +76,24 @@ public class MainFrame {
         scan_btm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Clear the result Panel
+                // Remove the old status panel and add new panel
+                frame.remove(statusPanel);
+                statusPanel = new StatusPanel();
+                frame.add(statusPanel, BorderLayout.SOUTH);
+
                 statusPanel.setVisible(true);
+                detailPanel.setVisible(false);
                 resultPanel.removeAll();
+
+                // init all data set
+                tasks = new HashMap<>();
+                results = new ConcurrentHashMap<>();
+                fileMap = new HashMap<>();
+
+                for (String type : settings.getSupported_file()) {
+                    tasks.put(type, new HashSet<File>());
+                }
+
                 frame.pack();
 
                 pool = new CompletionExecutor(listener);
@@ -101,7 +110,6 @@ public class MainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pool.shutdownNow();
-                progressNumber = new AtomicInteger(0);
             }
         });
 
@@ -270,9 +278,17 @@ public class MainFrame {
             Map<String, Set<String>> correctDatasetMap = new HashMap<>();
 
             for (ResultTree tree : results.values()) {
-                String datatype = tree.getType();
-                detailedDatasetMap.put(datatype, tree.getDetailedResults());
-                correctDatasetMap.put(datatype, tree.getCorrectDataset());
+                int num = tree.getRestDataNumber();
+                if (num == 0) {
+                    String datatype = tree.getType();
+                    detailedDatasetMap.put(datatype, tree.getDetailedResults());
+                    correctDatasetMap.put(datatype, tree.getCorrectDataset());
+                } else {
+                    JOptionPane.showMessageDialog(frame,
+                            "Sorry, there are still " + num + " data in " + tree.getType() + " needs to be evaluated.");
+                    return null;
+                }
+
             }
 
             pool.setMode(2);
