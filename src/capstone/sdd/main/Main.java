@@ -33,6 +33,7 @@ public class Main {
 		settings.addSupported_file("docx");
 		settings.addSupported_file("doc");
 		settings.addSupported_file("pdf");
+		settings.addSupported_file("xlsx");
 		settings.addSupported_file("csv");
 
 		settings.addPattern("ssn", "(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}");
@@ -66,10 +67,8 @@ public class Main {
 
 //		PDDocument doc = new PDDocument();
 //		PDPage page1 = new PDPage();
-//		PDPage page2 = new PDPage();
 //
 //		doc.addPage( page1 );
-//		doc.addPage(page2);
 //
 //
 //
@@ -77,13 +76,8 @@ public class Main {
 //				{"c","d", "2"},
 //				{"e","f", "3"},
 //				{"g","h", "4"},
-//				{"i","j", "5"}} ;
+//				{"i","j", "5", "7"}} ;
 //
-//		String[][] content1 = {{"a","b", "2"},
-//				{"c","d", "2"},
-//				{"e","f", "3"},
-//				{"g","h", "4"},
-//				{"i","j", "5"}} ;
 //
 //		try {
 //			PDPageContentStream contentStream = new PDPageContentStream(doc, page1);
@@ -91,9 +85,6 @@ public class Main {
 //			drawTable(page1, contentStream, 700, 100, content);
 //			contentStream.close();
 //
-//			contentStream = new PDPageContentStream(doc, page2);
-//			drawTable(page2, contentStream, 700, 100, content1);
-//			contentStream.close();
 //
 //
 //			doc.save("/Users/lieyongzou/Documents/test.pdf" );
@@ -101,7 +92,7 @@ public class Main {
 //		} catch(IOException e) {
 //			e.printStackTrace();
 //		}
-//
+
 	}
 
 	private static void drawTable(PDPage page, PDPageContentStream contentStream,

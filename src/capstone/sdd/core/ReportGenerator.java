@@ -7,10 +7,7 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 /**
@@ -66,13 +63,20 @@ public class ReportGenerator implements Callable<Void> {
         }
 
         Map<String, Integer> fileWithCorrectData = new HashMap<>();
+        Set<String> marks = new HashSet<>();
         for (String datatype : detailedDatasetMap.keySet()) {
             Map<String, List<List<String>>> detailedData = detailedDatasetMap.get(datatype);
 
             for (String data : correctDatasetMap.get(datatype)) {
                 for (List<String> metadata : detailedData.get(data)) {
                     String path = metadata.get(1);
+
+                    if (marks.contains(path)) {
+                        continue;
+                    }
+
                     String type = getExtension(path);
+                    marks.add(path);
 
                     if (!fileWithCorrectData.containsKey(type)) {
                         fileWithCorrectData.put(type, 0);
@@ -91,6 +95,51 @@ public class ReportGenerator implements Callable<Void> {
         }
 
 
+        // Data part
+        int distinctDataNumber = 0;
+        int totalDataNumber = 0;
+
+        // Total number of distinct data
+        Map<String, Integer> distinctDataMap = new HashMap<>();
+        Map<String, Integer> distinctCorrectDataMap = new HashMap<>();
+
+        // Total number of data which contains same data
+        Map<String, Integer> totalDataMap = new HashMap<>();
+        Map<String, Integer> totalCorrectDataMap = new HashMap<>();
+
+        for (String datatype : detailedDatasetMap.keySet()) {
+
+            // Add total distinct data
+            int localDistinct = detailedDatasetMap.get(datatype).size();
+            distinctDataMap.put(datatype, localDistinct);
+            distinctDataNumber += localDistinct;
+
+            // Add total correct distinct data
+            distinctCorrectDataMap.put(datatype, correctDatasetMap.get(datatype).size());
+
+            int count = 0;
+            int countForCorrection = 0;
+            Map<String, List<List<String>>> dataMap = detailedDatasetMap.get(datatype);
+            for (String data : dataMap.keySet()) {
+                count += dataMap.get(data).size();
+
+                if (correctDatasetMap.get(datatype).contains(data)) {
+                    countForCorrection += dataMap.get(data).size();
+                }
+            }
+
+            totalDataMap.put(datatype, count);
+            totalDataNumber += count;
+
+            totalCorrectDataMap.put(datatype, countForCorrection);
+        }
+
+        System.out.println("There are total " + totalDataNumber + "Sensitive data, and " + distinctDataNumber + " distinct sensitive data");
+        for (String type : totalDataMap.keySet()) {
+            System.out.println(type + ":  total:  "  + totalDataMap.get(type) + "  correct: " + totalCorrectDataMap.get(type) + " distinct: " + distinctDataMap.get(type) + " distinct correct: " + distinctCorrectDataMap.get(type));
+        }
+
+        // Wrap results for file parts
         String[][] contentForFile = new String[totalFileMap.size() + 1][4];
         contentForFile[0][0] = "File Type";
         contentForFile[0][1] = "File Number";
@@ -100,63 +149,57 @@ public class ReportGenerator implements Callable<Void> {
         int row = 1;
         for (String type : totalFileMap.keySet()) {
             contentForFile[row][0] = type;
-            contentForFile[row][1] = totalFileMap.get(type).size() + "";
-            contentForFile[row][2] = fileWithData.get(type) + "";
-            contentForFile[row][3] = fileWithCorrectData.get(type) + "";
+            contentForFile[row][1] = totalFileMap.containsKey(type) ? totalFileMap.get(type).size() + "" : "0";
+            contentForFile[row][2] = fileWithData.containsKey(type) ? fileWithData.get(type) + "" : "0";
+            contentForFile[row][3] = fileWithCorrectData.containsKey(type) ? fileWithCorrectData.get(type) + "" : "0";
 
             row += 1;
         }
 
-        System.out.println(contentForFile);
 
-		PDDocument doc = new PDDocument();
-		PDPage page = new PDPage();
-		doc.addPage( page );
+        // Wrap results for data parts
+        String[][] contentForData = new String[totalDataMap.size() + 1][5];
+        contentForData[0][0] = "Data Type";
+        contentForData[0][1] = "Total";
+        contentForData[0][2] = "True Positive";
+        contentForData[0][3] = "Distinct";
+        contentForData[0][4] = "True Positive";
 
-
-		try {
-			PDPageContentStream contentStream = new PDPageContentStream(doc, page);
-
-			drawTable(page, contentStream, 700, 100, contentForFile);
-
-            drawTable(page, contentStream, 700, 100, contentForFile);
-			contentStream.close();
-			doc.save("/Users/lieyongzou/Documents/test.pdf" );
-
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-
-
-        // Data part
-        int totalDistinctDataNumber = 0;
-        int totalDataNumber = 0;
-
-        // Total number of distinct data
-        Map<String, Integer> distinctDataMap = new HashMap<>();
-
-        // Total number of data which contains same data
-        Map<String, Integer> totalDataMap = new HashMap<>();
-
-        for (String datatype : detailedDatasetMap.keySet()) {
-            int localDistinct = detailedDatasetMap.get(datatype).size();
-            distinctDataMap.put(datatype, localDistinct);
-            totalDistinctDataNumber += localDistinct;
-
-            int count = 0;
-            Map<String, List<List<String>>> dataMap = detailedDatasetMap.get(datatype);
-            for (String data : dataMap.keySet()) {
-                count += dataMap.get(data).size();
-            }
-
-            totalDataMap.put(datatype, count);
-            totalDataNumber += count;
-        }
-
-        System.out.println("There are total " + totalDataNumber + "Sensitive data, and " + totalDistinctDataNumber + " distinct sensitive data");
+        row = 1;
         for (String type : totalDataMap.keySet()) {
-            System.out.println(type + ":    "  + totalDataMap.get(type) + "    " + distinctDataMap.get(type));
+            contentForData[row][0] = type;
+            contentForData[row][1] = totalDataMap.containsKey(type) ? totalDataMap.get(type) + "" : "0";
+            contentForData[row][2] = totalCorrectDataMap.containsKey(type) ? totalCorrectDataMap.get(type) + "" : "0";
+            contentForData[row][3] = distinctDataMap.containsKey(type) ? distinctDataMap.get(type) + "" : "0";
+            contentForData[row][4] = distinctCorrectDataMap.containsKey(type) ? distinctCorrectDataMap.get(type) + "" : "0";
+
+            row += 1;
         }
+
+        // Draw the table to pdf
+        PDDocument doc = new PDDocument();
+        PDPage page1 = new PDPage();
+        PDPage page2 = new PDPage();
+        doc.addPage( page1 );
+        doc.addPage( page2 );
+
+
+        try {
+            PDPageContentStream contentStream = new PDPageContentStream(doc, page1);
+            drawTable(page1, contentStream, 700, 100, contentForFile);
+            contentStream.close();
+
+            contentStream = new PDPageContentStream(doc, page2);
+            drawTable(page2, contentStream, 700, 100, contentForData);
+            contentStream.close();
+
+            doc.save("/Users/lieyongzou/Documents/test.pdf" );
+
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+
 
         return null;
     }

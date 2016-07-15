@@ -45,6 +45,9 @@ public class ParserFactory {
 			case "pdf":
 				return new PdfParser();
 
+			case "xlsx":
+				return new XlsxParser();
+
 			default:
 				throw new UnsupportedOperationException();
 		}
