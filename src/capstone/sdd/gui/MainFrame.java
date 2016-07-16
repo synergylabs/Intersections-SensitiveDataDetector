@@ -66,8 +66,20 @@ public class MainFrame {
         mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 
         // Add button panel to frame
-        buttonPanel.setLayout(new GridLayout(1, 3));
+        buttonPanel.setLayout(new GridLayout(1, 4));
         buttonPanel.setBackground(Color.WHITE);
+
+
+        JButton add_btm = new JButton("Add Pattern");
+        add_btm.setFocusPainted(false);
+        add_btm.setIcon(getImage("add.png"));
+        add_btm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PatternPanel panel = new PatternPanel(listener);
+                panel.setVisible(true);
+            }
+        });
 
 
         JButton scan_btm = new JButton("Start");
@@ -84,6 +96,8 @@ public class MainFrame {
                 statusPanel.setVisible(true);
                 detailPanel.setVisible(false);
                 resultPanel.removeAll();
+                add_btm.setEnabled(false);
+                scan_btm.setEnabled(false);
 
                 // init all data set
                 tasks = new HashMap<>();
@@ -110,12 +124,18 @@ public class MainFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pool.shutdownNow();
+                add_btm.setEnabled(true);
+                scan_btm.setEnabled(true);
             }
         });
+
+
+
 
         // Add two buttons to panel
         buttonPanel.add(scan_btm);
         buttonPanel.add(stop_btm);
+        buttonPanel.add(add_btm);
 
         // The panel to display results
         Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),

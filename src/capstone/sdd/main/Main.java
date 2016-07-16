@@ -21,13 +21,7 @@ public class Main {
 	
 	public static void  main(String[] args) {
 
-		// Open a executor survice to execute all the tasks by multi-threads
-//		int POOL_SIZE = Runtime.getRuntime().availableProcessors();
-//		ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
-//
-		// Configure the settings, all the workers will have access to the settings
 		Settings settings = Settings.getInstance();
-//		settings.setScan_sub_repo(false);
 
 		settings.addSupported_file("txt");
 		settings.addSupported_file("docx");
@@ -36,34 +30,20 @@ public class Main {
 		settings.addSupported_file("xlsx");
 		settings.addSupported_file("csv");
 
-		settings.addPattern("ssn", "(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}");
-		settings.addPattern("credit card", "4[0-9]{12}(?:[0-9]{3})?");
-		settings.addPattern("credit card", "4[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}");
-
 		settings.setStart_folder("/Users/lieyongzou/Documents");
 
 
 		SwingUtilities.invokeLater(() -> {
 			new MainFrame();
-//			JFrame frame = new JFrame();
-//			frame.setLayout(new FlowLayout());
-//			JPanel panel = new JPanel();
-//			for (int i = 0; i < 5; i++) {
-//				panel.add(new JButton(i + ""));
-//			}
-//
-//			panel.removeAll();
-//			for (int i = 5; i < 10; i++) {
-//				panel.add(new JButton(i + ""));
-//			}
-//
-//			frame.add(panel);
-//			frame.revalidate();
-//			frame.repaint();
-//			frame.pack();
-//			frame.setVisible(true);
-
 		});
+
+//		Pattern p = Pattern.compile("<html>(.*?)<br>(.*?)</html>");
+//		Matcher m = p.matcher("<html>SSN<br>123-45-6789</html>");
+//
+//		while (m.find()) {
+//			System.out.println(m.group(1));
+//			System.out.println(m.group(2));
+//		}
 
 //		PDDocument doc = new PDDocument();
 //		PDPage page1 = new PDPage();

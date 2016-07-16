@@ -1,5 +1,7 @@
 package capstone.sdd.gui;
 
+import capstone.sdd.core.Settings;
+
 import javax.swing.*;
 import java.io.File;
 import java.util.List;
@@ -13,24 +15,10 @@ public class GuiListener {
 
     // The main interface of software
     private MainFrame mainFrame;
+    private Settings settings = Settings.getInstance();
 
     public GuiListener(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-    }
-
-
-    /**
-     * A method to add result to GUI
-     * @param type the type of sensitive data
-     * @param data the data itself
-     * @param context the context of data
-     * @param file the file
-     */
-    public void addResult(String type, String data, String context, File file) {
-        ResultTree tree = mainFrame.getResultTree(type);
-
-        tree.addResult(data, context, file);
-        mainFrame.addDataInFile(data, file);
     }
 
 
@@ -56,9 +44,46 @@ public class GuiListener {
         mainFrame.getStatusPanel().resizeProgressBar();
     }
 
-
+    /**
+     * A method to add scanned file for the match worker to match
+     * @param file the file
+     */
     public void addTask(File file) {
         mainFrame.addTask(file);
+    }
+
+
+    /**
+     * A method to add result to GUI
+     * @param type the type of sensitive data
+     * @param data the data itself
+     * @param context the context of data
+     * @param file the file
+     */
+    public void addResult(String type, String data, String context, File file) {
+        ResultTree tree = mainFrame.getResultTree(type);
+
+        tree.addResult(data, context, file);
+        mainFrame.addDataInFile(data, file);
+    }
+
+
+    /**
+     * A method to add pattern to settings
+     * @param name the name
+     * @param pattern the pattern
+     */
+    public void addPattern(String name, String pattern) {
+        settings.addPattern(name.toUpperCase(), pattern);
+    }
+
+    /**
+     * A method to remove pattern from settings
+     * @param name the name
+     * @param pattern the pattern
+     */
+    public void removePattern(String name, String pattern) {
+        settings.removePattern(name, pattern);
     }
 
     public void finishScanTasks() {
@@ -74,9 +99,15 @@ public class GuiListener {
         JOptionPane.showMessageDialog(null, "Match Finished");
     }
 
+    /**
+     * A method to set the data correct or wrong
+     * @param type the type of data
+     * @param data the data
+     * @param isCorrect true correct
+     *                  false wrong
+     */
     public void setCorrectness(String type, String data, boolean isCorrect) {
         ResultTree tree = mainFrame.getResultTree(type);
-
         tree.setCorrectness(data, isCorrect);
     }
 
