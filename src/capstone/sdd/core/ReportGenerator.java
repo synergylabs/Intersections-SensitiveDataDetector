@@ -1,9 +1,11 @@
 package capstone.sdd.core;
 
+import capstone.sdd.gui.GuiListener;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +16,8 @@ import java.util.concurrent.Callable;
  * Created by lieyongzou on 7/10/16.
  */
 public class ReportGenerator implements Callable<Void> {
+
+    private String REPORTNAME = "Report%s.pdf";
 
     // A map <File> -- <Set of sensitive data>
     private Map<File, Set<String>> fileMap;
@@ -27,15 +31,36 @@ public class ReportGenerator implements Callable<Void> {
     // A map <data type> -- <<Data> -- <[context, File path]>>
     private Map<String, Map<String, List<List<String>>>> detailedDatasetMap;
 
+    // The time of some specific operation
+    long scanStartTime;
+    long scanStopTime;
+    long matchStopTime;
+    long evalStartTime;
+    long evalStopTime;
+
+    private String path;
+
+    private GuiListener listener;
+
 
     public ReportGenerator(Map<File, Set<String>> fileMap,
-                            Map<String, Set<File>> totalFileMap,
-                                    Map<String, Set<String>> correctDatasetMap,
-                                        Map<String, Map<String, List<List<String>>>> detailedDatasetMap) {
+                           Map<String, Set<File>> totalFileMap,
+                           Map<String, Set<String>> correctDatasetMap,
+                           Map<String, Map<String, List<List<String>>>> detailedDatasetMap,
+                           String path, GuiListener listener,
+                           long scanStartTime, long scanStopTime, long matchStopTime, long evalStartTime, long evalStopTime) {
         this.fileMap = fileMap;
         this.totalFileMap = totalFileMap;
         this.correctDatasetMap = correctDatasetMap;
         this.detailedDatasetMap = detailedDatasetMap;
+        this.path = path;
+        this.listener = listener;
+
+        this.scanStartTime = scanStartTime;
+        this.scanStopTime = scanStopTime;
+        this.matchStopTime = matchStopTime;
+        this.evalStartTime = evalStartTime;
+        this.evalStopTime = evalStopTime;
     }
 
 
@@ -176,33 +201,75 @@ public class ReportGenerator implements Callable<Void> {
             row += 1;
         }
 
+        List<String> contentForTime = new ArrayList<>();
+        contentForTime.add("Scanned takes " + ((scanStopTime - scanStartTime) / 1000) + " seconds.");
+        contentForTime.add("Matching takes " + ((matchStopTime - scanStopTime) / 1000) + " seconds.");
+        contentForTime.add("Evalatiion of all data takes " + ((evalStopTime - evalStartTime) / 1000) + " seconds");
+
         // Draw the table to pdf
         PDDocument doc = new PDDocument();
         PDPage page1 = new PDPage();
         PDPage page2 = new PDPage();
+        PDPage page3 = new PDPage();
         doc.addPage( page1 );
         doc.addPage( page2 );
+        doc.addPage( page3 );
 
 
         try {
             PDPageContentStream contentStream = new PDPageContentStream(doc, page1);
-            drawTable(page1, contentStream, 700, 100, contentForFile);
+            drawTable(page1, contentStream, 700, 50, contentForFile);
             contentStream.close();
 
             contentStream = new PDPageContentStream(doc, page2);
-            drawTable(page2, contentStream, 700, 100, contentForData);
+            drawTable(page2, contentStream, 700, 50, contentForData);
             contentStream.close();
 
-            doc.save("/Users/lieyongzou/Documents/test.pdf" );
+            contentStream = new PDPageContentStream(doc, page3);
+
+            int y = 700;
+
+            for (String line : contentForTime) {
+                contentStream.beginText();
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                contentStream.moveTextPositionByAmount(100, y);
+                contentStream.drawString(line);
+                contentStream.endText();
+
+                y -= 20;
+            }
+
+			contentStream.close();
+
+            doc.save(path + "/" + getAvailableName());
 
         } catch(IOException e) {
             e.printStackTrace();
         }
 
-
-
+        listener.finishGenerateReport(path);
         return null;
     }
+
+    /**
+     * A method to return the legal name not exist in file system
+     * @return the legal name
+     */
+    private String getAvailableName() {
+        int i = 0;
+        String name = String.format(REPORTNAME, "");
+
+        File file = new File(path + "/" + name);
+
+        while (file.exists() || file.isDirectory()) {
+            i += 1;
+            name = String.format(REPORTNAME, "(" + i + ")");
+            file = new File(path + "/" + name);
+        }
+
+        return name;
+    }
+
 
 
 
@@ -226,8 +293,8 @@ public class ReportGenerator implements Callable<Void> {
      * @throws IOException
      */
     private void drawTable(PDPage page, PDPageContentStream contentStream,
-                                 float y, float margin,
-                                 String[][] content) throws IOException {
+                           float y, float margin,
+                           String[][] content) throws IOException {
         final int rows = content.length;
         final int cols = content[0].length;
         final float rowHeight = 20f;

@@ -39,9 +39,9 @@ public class Settings {
 		patterns.put("SSN", new HashSet<>());
 		patterns.put("CREDIT CARD", new HashSet<>());
 
-		patterns.get("SSN").add("(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}");
-		patterns.get("CREDIT CARD").add("4[0-9]{12}(?:[0-9]{3})?");
-		patterns.get("CREDIT CARD").add("4[0-9]{3} [0-9]{4} [0-9]{4} [0-9]{4}");
+		patterns.get("SSN").add("(?!000|666)[0-8][0-9]{2}[-* ](?!00)[0-9]{2}[-* ](?!0000)[0-9]{4}");
+		patterns.get("CREDIT CARD").add("4[0-9]{12}");
+		patterns.get("CREDIT CARD").add("4[0-9]{3}[-* ]{0,1}[0-9]{4}[-* ]{0,1}[0-9]{4}[-* ]{0,1}[0-9]{4}");
 	}
 
 	public File getStart_folder() {
@@ -74,7 +74,7 @@ public class Settings {
 	
 	// Regix pattern
 	public void addPattern(String name, String pattern) {
-		name = name.toUpperCase();
+		name = name.toLowerCase();
 		if (!customizedPatterns.containsKey(name)) {
 			customizedPatterns.put(name, new HashSet<>());
 		}

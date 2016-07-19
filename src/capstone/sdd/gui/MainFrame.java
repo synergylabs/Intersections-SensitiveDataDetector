@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MainFrame {
 
     private final static String TITLE = "Sensitive Data Detector";
-    private final static int WINDOW_WIDTH = 400;
+    private final static int WINDOW_WIDTH = 450;
     private final static int WINDOW_HEIGHT = 500;
 
     private JFrame frame;
@@ -48,6 +48,20 @@ public class MainFrame {
     private DetailPanel detailPanel;
     private StatusPanel statusPanel = new StatusPanel();
 
+
+    JButton scan_btm = new JButton("Start");
+    JButton stop_btm = new JButton("Stop");
+    JButton add_btm = new JButton("Pattern");
+    JButton report_btm = new JButton("Report");
+
+    // The time of some specific operation
+    long scanStartTime = 0;
+    long scanStopTime = 0;
+    long matchStopTime = 0;
+    long evalStartTime = 0;
+    long evalStopTime = 0;
+
+
     public MainFrame() {
 
         // init task map
@@ -69,20 +83,6 @@ public class MainFrame {
         buttonPanel.setLayout(new GridLayout(1, 4));
         buttonPanel.setBackground(Color.WHITE);
 
-
-        JButton add_btm = new JButton("Add Pattern");
-        add_btm.setFocusPainted(false);
-        add_btm.setIcon(getImage("add.png"));
-        add_btm.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PatternPanel panel = new PatternPanel(listener);
-                panel.setVisible(true);
-            }
-        });
-
-
-        JButton scan_btm = new JButton("Start");
         scan_btm.setFocusPainted(false);
         scan_btm.setIcon(getImage("start.png"));
         scan_btm.addActionListener(new ActionListener() {
@@ -96,13 +96,18 @@ public class MainFrame {
                 statusPanel.setVisible(true);
                 detailPanel.setVisible(false);
                 resultPanel.removeAll();
+
+                buttonPanel.remove(report_btm);
                 add_btm.setEnabled(false);
                 scan_btm.setEnabled(false);
 
                 // init all data set
-                tasks = new HashMap<>();
+                tasks = new ConcurrentHashMap<>();
                 results = new ConcurrentHashMap<>();
-                fileMap = new HashMap<>();
+                fileMap = new ConcurrentHashMap<>();
+
+                // Set start time
+                scanStartTime = System.currentTimeMillis();
 
                 for (String type : settings.getSupported_file()) {
                     tasks.put(type, new HashSet<File>());
@@ -117,7 +122,7 @@ public class MainFrame {
         });
 
 
-        JButton stop_btm = new JButton("Stop");
+
         stop_btm.setFocusPainted(false);
         stop_btm.setIcon(getImage("stop.png"));
         stop_btm.addActionListener(new ActionListener() {
@@ -129,6 +134,32 @@ public class MainFrame {
             }
         });
 
+        add_btm.setFocusPainted(false);
+        add_btm.setIcon(getImage("add.png"));
+        add_btm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PatternPanel panel = new PatternPanel(listener);
+                panel.setVisible(true);
+            }
+        });
+
+        report_btm.setIcon(getImage("report.png"));
+        report_btm.setFocusPainted(false);
+        report_btm.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fc = new JFileChooser();
+                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                int returnVal = fc.showSaveDialog(frame);
+
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    String path = fc.getSelectedFile().getAbsolutePath();
+                    new GroupWorker(path).execute();
+
+                }
+            }
+        });
 
 
 
@@ -138,8 +169,6 @@ public class MainFrame {
         buttonPanel.add(add_btm);
 
         // The panel to display results
-        Border border = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-                "Result", TitledBorder.CENTER, TitledBorder.TOP);
         resultPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPanel.setBackground(Color.white);
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.PAGE_AXIS));
@@ -150,8 +179,6 @@ public class MainFrame {
 
         mainPanel.add(buttonPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-
-        // The panel to display status
 
 
         frame.add(mainPanel, BorderLayout.LINE_START);
@@ -166,10 +193,11 @@ public class MainFrame {
      * A method to get the corresponding result panel for listener to add results
      * @param type the type of data
      */
-    public ResultTree getResultTree(String type) {
+    public synchronized ResultTree getResultTree(String type) {
 
         // If no type existed in the frame, add it to results map
         if (!results.containsKey(type)) {
+            System.out.println(type);
             ResultTree tree = new ResultTree(type, listener);
             results.put(type, tree);
             resultPanel.add(tree.getTree());
@@ -186,9 +214,7 @@ public class MainFrame {
     public void addDataInFile(String data, File file) {
 
         // Add data to the file information
-        if (!fileMap.containsKey(file)) {
-            fileMap.put(file, new HashSet<>());
-        }
+        fileMap.putIfAbsent(file, new HashSet<>());
 
         fileMap.get(file).add(data);
     }
@@ -228,22 +254,32 @@ public class MainFrame {
 
 
     public void onScanFinished() {
+        scanStopTime = System.currentTimeMillis();
         new MatchSwingWorker().execute();
     }
 
+    /**
+     * A method called when all the files have been matched
+     */
     public void onMatchFinished() {
-        JButton report_btm = new JButton("Generate Report");
-        report_btm.setIcon(getImage("report.png"));
-        report_btm.setFocusPainted(false);
-        report_btm.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new GroupWorker().execute();
-            }
-        });
+
+        // Get the time when matching all files
+        matchStopTime = System.currentTimeMillis();
 
         buttonPanel.add(report_btm);
         buttonPanel.revalidate();
+
+        scan_btm.setEnabled(true);
+        add_btm.setEnabled(true);
+    }
+
+    /**
+     * A method called when evaluating data, but start time will only be set when first called
+     */
+    public void onEvalStarted() {
+        if (evalStartTime == 0) {
+            evalStartTime = System.currentTimeMillis();
+        }
     }
 
     /**
@@ -253,7 +289,6 @@ public class MainFrame {
      */
     private ImageIcon getImage(String name) {
         ImageIcon imageIcon = null;
-
         try {
             BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
             imageIcon = new ImageIcon(bufferedImage);
@@ -278,11 +313,11 @@ public class MainFrame {
             statusPanel.startMatch(totalTask);
             pool.setMode(1);
 
-            for (Set<File> files : tasks.values()) {
-                for (File file : files) {
+//            for (Set<File> files : tasks.values()) {
+                for (File file : tasks.get("txt")) {
                     pool.submit(new MatchWorker(file, listener));
                 }
-            }
+//            }
 
             return null;
         }
@@ -290,6 +325,13 @@ public class MainFrame {
 
 
     class GroupWorker extends SwingWorker<Void, Void> {
+
+        // The path to store the report
+        private String path;
+
+        public GroupWorker(String path) {
+            this.path = path;
+        }
 
         @Override
         protected Void doInBackground() throws Exception {
@@ -311,8 +353,16 @@ public class MainFrame {
 
             }
 
+            MainFrame.this.evalStopTime = System.currentTimeMillis();
+
             pool.setMode(2);
-            pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap));
+            pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap, path, listener,
+                    MainFrame.this.scanStartTime, MainFrame.this.scanStopTime, MainFrame.this.matchStopTime, MainFrame.this.evalStartTime, MainFrame.this.evalStopTime));
+
+
+            System.out.println("Scanned and Matching takes " + ((MainFrame.this.matchStopTime - MainFrame.this.scanStartTime) / 1000) + " seconds.");
+            System.out.println("Evalatiion of all data takes " + ((MainFrame.this.evalStopTime - MainFrame.this.evalStartTime) / 1000) + " seconds");
+
             return null;
         }
     }

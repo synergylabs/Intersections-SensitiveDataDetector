@@ -99,6 +99,11 @@ public class GuiListener {
         JOptionPane.showMessageDialog(null, "Match Finished");
     }
 
+    public void finishGenerateReport(String path) {
+        JOptionPane.showMessageDialog(null, "Report has been generated and stored at " + path);
+    }
+
+
     /**
      * A method to set the data correct or wrong
      * @param type the type of data
@@ -109,6 +114,8 @@ public class GuiListener {
     public void setCorrectness(String type, String data, boolean isCorrect) {
         ResultTree tree = mainFrame.getResultTree(type);
         tree.setCorrectness(data, isCorrect);
+
+        mainFrame.onEvalStarted();
     }
 
 

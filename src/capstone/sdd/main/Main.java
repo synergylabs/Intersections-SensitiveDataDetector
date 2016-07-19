@@ -9,9 +9,9 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,20 +36,20 @@ public class Main {
 		SwingUtilities.invokeLater(() -> {
 			new MainFrame();
 		});
-
-//		Pattern p = Pattern.compile("<html>(.*?)<br>(.*?)</html>");
-//		Matcher m = p.matcher("<html>SSN<br>123-45-6789</html>");
+//
+//		Pattern p = Pattern.compile("[0-9]{3}[-* ]{0,1}[0-9]{4}");
+//		Matcher m = p.matcher("dsaf234 1234asdfa");
 //
 //		while (m.find()) {
-//			System.out.println(m.group(1));
-//			System.out.println(m.group(2));
+//			System.out.println(m.group());
 //		}
 
 //		PDDocument doc = new PDDocument();
 //		PDPage page1 = new PDPage();
+//		PDPage page2 = new PDPage();
 //
 //		doc.addPage( page1 );
-//
+//		doc.addPage(page2);
 //
 //
 //		String[][] content = {{"a","b", "1"},
@@ -58,11 +58,33 @@ public class Main {
 //				{"g","h", "4"},
 //				{"i","j", "5", "7"}} ;
 //
-//
+//		List<String> lines = new ArrayList<>();
+//		lines.add("Hello !");
+//		lines.add("This is me!");
+
+
+
 //		try {
 //			PDPageContentStream contentStream = new PDPageContentStream(doc, page1);
+
+//			drawTable(page1, contentStream, 700, 50, content);
+//			contentStream.close();
+
+//			contentStream = new PDPageContentStream(doc, page2);
+
+//			int x = 100;
+//			int y = 700;
 //
-//			drawTable(page1, contentStream, 700, 100, content);
+//			for (String line : lines) {
+//				contentStream.beginText();
+//				contentStream.setFont( PDType1Font.HELVETICA_BOLD, 12 );
+//				contentStream.moveTextPositionByAmount( x, y );
+//				contentStream.drawString(line);
+//				contentStream.endText();
+//
+//				y -= 20;
+//			}
+//
 //			contentStream.close();
 //
 //
