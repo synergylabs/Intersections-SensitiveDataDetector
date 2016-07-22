@@ -42,8 +42,11 @@ public class ScanWorker implements Callable<Void> {
 				}
 			} else{
 				if (settings.isSupported(file)) {
-					listener.addTask(file);
-//					pool.submit(new MatchWorker(file, listener)); 	// send the file to match worker to match
+					if (file.length() <= settings.getFileSizeLimit()) {
+						listener.addTask(file);
+					} else {
+						System.out.println("Filter out: " + file.getAbsolutePath());
+					}
 				}
 			}
 		}
@@ -51,4 +54,5 @@ public class ScanWorker implements Callable<Void> {
 		
 		return null;
 	}
+
 }

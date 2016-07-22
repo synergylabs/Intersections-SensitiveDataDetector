@@ -2,20 +2,14 @@ package capstone.sdd.gui;
 
 import capstone.sdd.core.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by lieyongzou on 6/16/16.
@@ -23,9 +17,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class MainFrame {
 
-    private final static String TITLE = "Sensitive Data Detector";
+    private final static String TITLE = "TScanner";
     private final static int WINDOW_WIDTH = 450;
     private final static int WINDOW_HEIGHT = 500;
+
+    private String id = "TestCMU";
 
     private JFrame frame;
     private GuiListener listener;
@@ -49,9 +45,9 @@ public class MainFrame {
     private StatusPanel statusPanel = new StatusPanel();
 
 
-    JButton scan_btm = new JButton("Start");
+    JButton scan_btm = new JButton("Scan");
     JButton stop_btm = new JButton("Stop");
-    JButton add_btm = new JButton("Pattern");
+    JButton add_btm = new JButton("Settings");
     JButton report_btm = new JButton("Report");
 
     // The time of some specific operation
@@ -64,8 +60,10 @@ public class MainFrame {
 
     public MainFrame() {
 
-        // init task map
+        // Ask for the random code from MTurk
 
+
+        // init task map
         listener = new GuiListener(this);
 
         frame = new JFrame(TITLE);
@@ -117,7 +115,11 @@ public class MainFrame {
 
                 pool = new CompletionExecutor(listener);
                 pool.setMode(0);
-                pool.submit(new ScanWorker(settings.getStart_folder(), pool, listener));
+
+                for (File folder : settings.getStart_folder()) {
+                    pool.submit(new ScanWorker(folder, pool, listener));
+                }
+
             }
         });
 
@@ -135,11 +137,11 @@ public class MainFrame {
         });
 
         add_btm.setFocusPainted(false);
-        add_btm.setIcon(getImage("add.png"));
+        add_btm.setIcon(getImage("setting.png"));
         add_btm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PatternPanel panel = new PatternPanel(listener);
+                SettingPanel panel = new SettingPanel(listener);
                 panel.setVisible(true);
             }
         });
@@ -149,19 +151,10 @@ public class MainFrame {
         report_btm.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fc = new JFileChooser();
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int returnVal = fc.showSaveDialog(frame);
+                new GroupWorker().execute();
 
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    String path = fc.getSelectedFile().getAbsolutePath();
-                    new GroupWorker(path).execute();
-
-                }
             }
         });
-
-
 
         // Add two buttons to panel
         buttonPanel.add(scan_btm);
@@ -215,7 +208,6 @@ public class MainFrame {
 
         // Add data to the file information
         fileMap.putIfAbsent(file, new HashSet<>());
-
         fileMap.get(file).add(data);
     }
 
@@ -290,8 +282,7 @@ public class MainFrame {
     private ImageIcon getImage(String name) {
         ImageIcon imageIcon = null;
         try {
-            BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
-            imageIcon = new ImageIcon(bufferedImage);
+            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
 
         } catch(Exception e) {
             e.printStackTrace();
@@ -313,11 +304,11 @@ public class MainFrame {
             statusPanel.startMatch(totalTask);
             pool.setMode(1);
 
-//            for (Set<File> files : tasks.values()) {
-                for (File file : tasks.get("txt")) {
+            for (Set<File> files : tasks.values()) {
+                for (File file : files) {
                     pool.submit(new MatchWorker(file, listener));
                 }
-//            }
+            }
 
             return null;
         }
@@ -327,11 +318,6 @@ public class MainFrame {
     class GroupWorker extends SwingWorker<Void, Void> {
 
         // The path to store the report
-        private String path;
-
-        public GroupWorker(String path) {
-            this.path = path;
-        }
 
         @Override
         protected Void doInBackground() throws Exception {
@@ -353,12 +339,22 @@ public class MainFrame {
 
             }
 
-            MainFrame.this.evalStopTime = System.currentTimeMillis();
+            String path = "";
+            JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int returnVal = fc.showSaveDialog(frame);
 
-            pool.setMode(2);
-            pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap, path, listener,
-                    MainFrame.this.scanStartTime, MainFrame.this.scanStopTime, MainFrame.this.matchStopTime, MainFrame.this.evalStartTime, MainFrame.this.evalStopTime));
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                path = fc.getSelectedFile().getAbsolutePath();
 
+
+                MainFrame.this.evalStopTime = System.currentTimeMillis();
+
+                pool.setMode(2);
+                pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap, path, listener, MainFrame.this.id,
+                        MainFrame.this.scanStartTime, MainFrame.this.scanStopTime, MainFrame.this.matchStopTime, MainFrame.this.evalStartTime, MainFrame.this.evalStopTime));
+
+            }
 
             System.out.println("Scanned and Matching takes " + ((MainFrame.this.matchStopTime - MainFrame.this.scanStartTime) / 1000) + " seconds.");
             System.out.println("Evalatiion of all data takes " + ((MainFrame.this.evalStopTime - MainFrame.this.evalStartTime) / 1000) + " seconds");

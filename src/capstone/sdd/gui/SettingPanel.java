@@ -2,13 +2,10 @@ package capstone.sdd.gui;
 
 import capstone.sdd.core.Settings;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -17,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * Created by lieyongzou on 7/15/16.
  */
-public class PatternPanel extends JDialog{
+public class SettingPanel extends JDialog{
 
     private static final String CellPattern = "<html>%s<br>%s</html>";
     private static final String CellRetrievePattern = "<html>(.*?)<br>(.*?)</html>";
@@ -30,12 +27,17 @@ public class PatternPanel extends JDialog{
     private JTextField patternInput = new JTextField(20);
 
     private GuiListener listener;
+    private Settings settings = Settings.getInstance();
 
-    public PatternPanel(GuiListener listener) {
+    public SettingPanel(GuiListener listener) {
         this.listener = listener;
-
-        this.setLayout(new FlowLayout());
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        // The panal to add or remove customized pattern
+        JPanel patternPanel = new JPanel();
+        patternPanel.setLayout(new FlowLayout());
 
         JPanel listPanel = new JPanel();
 
@@ -118,16 +120,91 @@ public class PatternPanel extends JDialog{
 
         c.gridx = 0;
         c.gridy = 2;
-        inputPanel.add(new JLabel("Patterns:"), c);
+        inputPanel.add(new JLabel("Data Pattern:"), c);
 
         c.gridx = 0;
         c.gridy = 3;
         inputPanel.add(patternInput, c);
 
-        add(listPanel);
-        add(buttonPanel);
-        add(inputPanel);
+        JLabel label = new JLabel("Please use space as delimiter.");
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setFont(new Font("Serif", Font.ITALIC, 13));
 
+        c.gridx = 0;
+        c.gridy = 4;
+        c.gridwidth = 2;
+        inputPanel.add(label, c);
+
+        patternPanel.add(listPanel);
+        patternPanel.add(buttonPanel);
+        patternPanel.add(inputPanel);
+
+        tabbedPane.add("Patterns", patternPanel);
+
+        // the panel to set the file size to filter
+        JPanel sizePanel = new JPanel();
+        sizePanel.setLayout(new GridBagLayout());
+
+        c.gridx = 0;
+        c.gridy = GridBagConstraints.RELATIVE;
+        c.gridwidth = 3;
+
+        label = new JLabel("Please choose the file size, above which the files will be filtered out:");
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        sizePanel.add(label, c);
+
+        JRadioButton radio1 = new JRadioButton("5 MB");
+        JRadioButton radio2 = new JRadioButton("10 MB");
+        JRadioButton radio3 = new JRadioButton("15 MB");
+
+        int currentFileSize = (int)settings.getFileSizeLimit() / (1024 * 1024);
+        switch (currentFileSize) {
+            case 5:
+                radio1.setSelected(true);
+                break;
+
+            case 10:
+                radio2.setSelected(true);
+                break;
+
+            case 15:
+                radio3.setSelected(true);
+                break;
+
+        }
+
+        radio1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settings.setFilesizelimit(5);
+            }
+        });
+
+        radio2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settings.setFilesizelimit(10);
+            }
+        });
+
+        radio3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settings.setFilesizelimit(15);
+            }
+        });
+
+        ButtonGroup fileSizeGroup = new ButtonGroup();
+        fileSizeGroup.add(radio1);
+        fileSizeGroup.add(radio2);
+        fileSizeGroup.add(radio3);
+
+        sizePanel.add(radio1, c);
+        sizePanel.add(radio2, c);
+        sizePanel.add(radio3, c);
+
+        tabbedPane.add("File Size", sizePanel);
+        this.add(tabbedPane);
         pack();
 
     }
@@ -140,10 +217,8 @@ public class PatternPanel extends JDialog{
      */
     private ImageIcon getImage(String name) {
         ImageIcon imageIcon = null;
-
         try {
-            BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
-            imageIcon = new ImageIcon(bufferedImage);
+            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
 
         } catch(Exception e) {
             e.printStackTrace();

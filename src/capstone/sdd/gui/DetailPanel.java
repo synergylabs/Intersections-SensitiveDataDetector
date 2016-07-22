@@ -140,7 +140,7 @@ public class DetailPanel extends JPanel {
 
                     doc.insertString(doc.getLength(), "Context: \n", attributeSet);
                     doc.insertString(doc.getLength(), pair.get(0) + "\n", null);
-                    doc.insertString(doc.getLength(), "________________________________________________________\n\n", null);
+                    doc.insertString(doc.getLength(), "______________________________________________________\n\n", null);
                 }
 
 
@@ -163,12 +163,12 @@ public class DetailPanel extends JPanel {
             questionPanel.setLayout(new BorderLayout());
             questionPanel.setBackground(Color.white);
 
-            JLabel questionLabel = new JLabel("Do you think this " + type + " is correct?");
+            JLabel questionLabel = new JLabel("Is this a " + type + "?");
             questionLabel.setFont(new Font("Serif", Font.BOLD, 15));
             questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
             questionPanel.add(questionLabel, BorderLayout.NORTH);
 
-            JButton rightButton = new JButton("Correct");
+            JButton rightButton = new JButton("Yes");
             rightButton.setFocusPainted(false);
             rightButton.setIcon(getImage("correct.png"));
             rightButton.addActionListener(new ActionListener() {
@@ -179,7 +179,7 @@ public class DetailPanel extends JPanel {
                 }
             });
 
-            JButton wrongButton = new JButton("Wrong");
+            JButton wrongButton = new JButton("No");
             wrongButton.setFocusPainted(false);
             wrongButton.setIcon(getImage("wrong.png"));
             wrongButton.addActionListener(new ActionListener() {
@@ -281,10 +281,8 @@ public class DetailPanel extends JPanel {
      */
     private ImageIcon getImage(String name) {
         ImageIcon imageIcon = null;
-
         try {
-            BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
-            imageIcon = new ImageIcon(bufferedImage);
+            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
 
         } catch(Exception e) {
             e.printStackTrace();

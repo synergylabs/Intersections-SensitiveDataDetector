@@ -18,6 +18,10 @@ import java.util.concurrent.Callable;
 public class ReportGenerator implements Callable<Void> {
 
     private String REPORTNAME = "Report%s.pdf";
+    private String DELIMITER = "\\";
+//    private String DELIMITER = "/";
+
+    private String id;
 
     // A map <File> -- <Set of sensitive data>
     private Map<File, Set<String>> fileMap;
@@ -47,7 +51,7 @@ public class ReportGenerator implements Callable<Void> {
                            Map<String, Set<File>> totalFileMap,
                            Map<String, Set<String>> correctDatasetMap,
                            Map<String, Map<String, List<List<String>>>> detailedDatasetMap,
-                           String path, GuiListener listener,
+                           String path, GuiListener listener, String id,
                            long scanStartTime, long scanStopTime, long matchStopTime, long evalStartTime, long evalStopTime) {
         this.fileMap = fileMap;
         this.totalFileMap = totalFileMap;
@@ -55,6 +59,7 @@ public class ReportGenerator implements Callable<Void> {
         this.detailedDatasetMap = detailedDatasetMap;
         this.path = path;
         this.listener = listener;
+        this.id = id;
 
         this.scanStartTime = scanStartTime;
         this.scanStopTime = scanStopTime;
@@ -202,6 +207,7 @@ public class ReportGenerator implements Callable<Void> {
         }
 
         List<String> contentForTime = new ArrayList<>();
+        contentForTime.add("User Id:" + id);
         contentForTime.add("Scanned takes " + ((scanStopTime - scanStartTime) / 1000) + " seconds.");
         contentForTime.add("Matching takes " + ((matchStopTime - scanStopTime) / 1000) + " seconds.");
         contentForTime.add("Evalatiion of all data takes " + ((evalStopTime - evalStartTime) / 1000) + " seconds");
@@ -215,6 +221,7 @@ public class ReportGenerator implements Callable<Void> {
         doc.addPage( page2 );
         doc.addPage( page3 );
 
+        String filename = "";
 
         try {
             PDPageContentStream contentStream = new PDPageContentStream(doc, page1);
@@ -241,13 +248,14 @@ public class ReportGenerator implements Callable<Void> {
 
 			contentStream.close();
 
-            doc.save(path + "/" + getAvailableName());
+            filename = path + DELIMITER + getAvailableName();
+            doc.save(filename);
 
         } catch(IOException e) {
             e.printStackTrace();
         }
 
-        listener.finishGenerateReport(path);
+        listener.finishGenerateReport(filename);
         return null;
     }
 
@@ -259,18 +267,16 @@ public class ReportGenerator implements Callable<Void> {
         int i = 0;
         String name = String.format(REPORTNAME, "");
 
-        File file = new File(path + "/" + name);
+        File file = new File(path + DELIMITER + name);
 
         while (file.exists() || file.isDirectory()) {
             i += 1;
             name = String.format(REPORTNAME, "(" + i + ")");
-            file = new File(path + "/" + name);
+            file = new File(path + DELIMITER + name);
         }
 
         return name;
     }
-
-
 
 
     private String getExtension(String name) {

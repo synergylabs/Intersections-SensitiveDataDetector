@@ -30,7 +30,7 @@ public class StatusPanel extends JPanel {
     public StatusPanel() {
         this.setLayout(new GridBagLayout());
 
-        workLabel.setText("Collecting...");
+        workLabel.setText("File Types");
         workLabel.setFont(new Font("Serif", Font.BOLD, 15));
 
 
@@ -42,12 +42,12 @@ public class StatusPanel extends JPanel {
         c.insets = new Insets(0, 10, 0, 0);
         this.add(workLabel, c);
 
-        JLabel label = new JLabel("Total:");
+        JLabel label = new JLabel("Total files to scan:");
         label.setFont(new Font("Serif", Font.BOLD, 15));
         c.gridx = 1;
         this.add(label, c);
 
-        label = new JLabel("Finish:");
+        label = new JLabel("Total files scanned:");
         label.setFont(new Font("Serif", Font.BOLD, 15));
         c.gridx = 2;
         this.add(label, c);
@@ -92,9 +92,6 @@ public class StatusPanel extends JPanel {
      * A method to add progress bar in the status panel
      */
     public void startMatch(int maxTasks) {
-        workLabel.setText("Matching...");
-
-
         progressBar.setVisible(true);
         progressBar.setMaximum(maxTasks);
         progressBar.setValue(0);

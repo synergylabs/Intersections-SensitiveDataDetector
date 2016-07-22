@@ -212,6 +212,8 @@ public class ResultTree {
             super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
             if (hasFocus) {
                 this.setFont(getFont().deriveFont(Font.BOLD + Font.ITALIC));
+                this.setBackgroundSelectionColor(null);
+                this.setBorderSelectionColor(null);
             } else {
                 this.setFont(getFont().deriveFont(Font.PLAIN));
             }
@@ -230,10 +232,8 @@ public class ResultTree {
      */
     private ImageIcon getImage(String name) {
         ImageIcon imageIcon = null;
-
         try {
-            BufferedImage bufferedImage = ImageIO.read(new File(MainFrame.class.getClassLoader().getResource(name).getPath()));
-            imageIcon = new ImageIcon(bufferedImage);
+            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
 
         } catch(Exception e) {
             e.printStackTrace();
