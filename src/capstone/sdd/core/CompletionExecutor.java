@@ -18,7 +18,7 @@ public class CompletionExecutor extends ThreadPoolExecutor {
 
     // The number of tasks in the pool
     private final AtomicInteger executing = new AtomicInteger(0);
-    
+
     private GuiListener listener;
     private Mode mode;
 

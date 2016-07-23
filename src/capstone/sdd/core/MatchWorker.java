@@ -31,14 +31,23 @@ public class MatchWorker implements Callable<Void> {
 	
 	public MatchWorker(File file, GuiListener listener) {
 
-		this.file = file;
-		this.listener = listener;
+		if (file != null && listener != null) {
+			this.file = file;
+			this.listener = listener;
+		} else {
+			throw new NullPointerException();
+		}
 	}
-	
+
+
 	@Override
 	public Void call() throws Exception {
 		
 		String content = ParserFactory.getContent(file);
+
+		if (content == null || content.isEmpty()) {
+			return null;
+		}
 		
 		// Get a list patterns need to match
 		for (Map.Entry<String, Set<String>> entry : Settings.getInstance().getPatterns().entrySet()) {
@@ -49,6 +58,10 @@ public class MatchWorker implements Callable<Void> {
 				Matcher m = p.matcher(content);
 
 				while (m.find()) {
+
+					if (m.group().length() != 2) {
+						continue;
+					}
 
 					// Validate the data
 					Validator validator = ValidatorFactory.getValidator(entry.getKey());
