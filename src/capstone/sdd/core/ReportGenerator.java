@@ -265,6 +265,8 @@ public class ReportGenerator implements Callable<Void> {
         contentForTime.add("Scanned takes " + ((scanStopTime - scanStartTime) / 1000) + " seconds.");
         contentForTime.add("Matching takes " + ((matchStopTime - scanStopTime) / 1000) + " seconds.");
         contentForTime.add("Evalatiion of all data takes " + ((evalStopTime - evalStartTime) / 1000) + " seconds");
+
+        return contentForTime;
     }
 
 

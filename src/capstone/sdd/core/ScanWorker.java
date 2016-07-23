@@ -17,6 +17,11 @@ public class ScanWorker implements Callable<Void> {
 	private GuiListener listener;
 	
 	public ScanWorker(File folder, ExecutorService pool, GuiListener listener) {
+
+		if (folder == null || pool == null || listener == null) {
+			return;
+		}
+
 		this.folder = folder;
 		this.pool = pool;
 		settings = Settings.getInstance();
@@ -28,7 +33,6 @@ public class ScanWorker implements Callable<Void> {
 	public Void call() throws Exception {
 		
 		File[] files = folder.listFiles();
-		List<Callable<Void>> tasks = new ArrayList<>();
 
 		for (File file : files) {
 			if (file == null) {
@@ -36,17 +40,12 @@ public class ScanWorker implements Callable<Void> {
 			}
 				
 			if (file.isDirectory()) {
-				if (settings.isScan_sub_repo()) {
+				if (settings.isScan_sub_repo()) {	// The settings to scan sub folders
 					pool.submit(new ScanWorker(file, pool, listener));
-					tasks.add(new ScanWorker(file, pool, listener));
 				}
 			} else{
-				if (settings.isSupported(file)) {
-					if (file.length() <= settings.getFileSizeLimit()) {
-						listener.addTask(file);
-					} else {
-						System.out.println("Filter out: " + file.getAbsolutePath());
-					}
+				if (settings.isSupported(file) && file.length() <= settings.getFileSizeLimit()) {
+					listener.addTask(file);
 				}
 			}
 		}

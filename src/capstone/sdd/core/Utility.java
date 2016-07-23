@@ -5,7 +5,17 @@ package capstone.sdd.core;
  */
 public class Utility {
 
+
+    /**
+     * A method to get the extension of file
+     * @param name the name of file
+     * @return the extension of file
+     */
     public static String getExtension(String name) {
+
+        if (!name.contains(".")) {
+            return "";
+        }
 
         // Get the extension of file
         int index = name.lastIndexOf('.');
