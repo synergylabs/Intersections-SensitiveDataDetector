@@ -43,7 +43,7 @@ public class MatchWorker implements Callable<Void> {
 	@Override
 	public Void call() throws Exception {
 		
-		String content = ParserFactory.getContent(file);
+		String content = Utility.getContent(file);
 
 		if (content == null || content.isEmpty()) {
 			return null;
@@ -59,10 +59,6 @@ public class MatchWorker implements Callable<Void> {
 
 				while (m.find()) {
 
-					if (m.group().length() != 2) {
-						continue;
-					}
-
 					// Validate the data
 					Validator validator = ValidatorFactory.getValidator(entry.getKey());
 					if (validator == null || validator.validate(m.group(1))) {
@@ -71,8 +67,6 @@ public class MatchWorker implements Callable<Void> {
 					} else {
 						System.out.println("False data: " + m.group(1));
 					}
-
-
 				}
 			}
 		}

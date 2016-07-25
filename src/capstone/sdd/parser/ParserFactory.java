@@ -9,25 +9,6 @@ import java.io.File;
  */
 public class ParserFactory {
 
-
-	/**
-	 * A method to get the content from file
-	 * @param file the file
-	 * @return the content
-     */
-	public static String getContent(File file) {
-
-		// Get the extension of file
-		int index = file.getName().lastIndexOf('.');
-		String suffix = file.getName().substring(index + 1);
-
-		// Get the parser from factory
-		Parser parser = ParserFactory.getParser(suffix);
-		return " " + parser.parse(file) + " ";
-	}
-
-
-
 	public static Parser getParser(String type) {
 		type = type.toLowerCase();
 		

@@ -54,7 +54,7 @@ public class StatusPanel extends JPanel {
 
 
 
-        for (String type : settings.getSupported_file()) {
+        for (String type : settings.getSupportedFileSet()) {
 
             countMap.put(type, new AtomicInteger(0));
 

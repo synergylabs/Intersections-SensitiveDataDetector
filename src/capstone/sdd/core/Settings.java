@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,16 +16,25 @@ import java.util.regex.Pattern;
  */
 public class Settings {
 
+	// The pattern to extract file id for the same report name, eg: Report(1).pdf
 	private static final Pattern DRIVEPATTERN = Pattern.compile("\\((.*?)\\)");
-	
-	private Set<File> start_folders = new HashSet<>();
-	private boolean scan_sub_repo;
-	private Set<String> supported_file = new HashSet<>();
+
+	// The set of start folders
+	private Set<File> startFolders = new HashSet<>();
+
+	// The set of supported file extensions
+	private Set<String> supportedFileSet = new HashSet<>();
+
+	// The set of our targeted patterns
 	private Map<String, Set<String>> patterns = new HashMap<>();
+
+	// The set of customized patterns by users
 	private Map<String, Set<String>> customizedPatterns = new HashMap<>();
 
+	// The merged pattern set contains all patterns
 	private Map<String, Set<String>> mergedPatterns = null;
 
+	// The threshold for the file to be filtered out
 	public long fileSizeLimit = 5 * 1024 * 1024;
 	
 	private static Settings instance = null;
@@ -35,60 +45,58 @@ public class Settings {
 		}
 		return instance;
 	}
+
+	private enum DataType {
+		SSN, CREDIT_CARD;
+
+		@Override
+		public String toString() {
+			return super.toString().replaceAll("_", " ");
+		}
+	}
 	
 	/**
 	 * A constructor set all the default settings
 	 */
 	private Settings() {
-		scan_sub_repo = true;
 
-		patterns.put("SSN", new HashSet<>());
-		patterns.put("CREDIT CARD", new HashSet<>());
+		patterns.put(DataType.SSN.toString(), new HashSet<>());
+		patterns.put(DataType.CREDIT_CARD.toString(), new HashSet<>());
 
 
 		// Init the settings
-		patterns.get("SSN").add("(?!000|666)[0-8][0-9]{2}[- ](?!00)[0-9]{2}[- ](?!0000)[0-9]{4}");
+		patterns.get(DataType.SSN.toString()).add("(?!000|666)[0-8][0-9]{2}[- ](?!00)[0-9]{2}[- ](?!0000)[0-9]{4}");
 
-		// Visa card
-		patterns.get("CREDIT CARD").add("4[0-9]{12}");
-		patterns.get("CREDIT CARD").add("4[0-9]{3}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}");
+		String patternsForCreditCard = "4[0-9]{12}|" +								// visa card
+				"4[0-9]{3}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}|" +
+				"(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}|" +	// Master
+				"3[47][0-9]{2}[- ]{0,1}[0-9]{6}[- ]{0,1}[0-9]{5}|" +	// American Expression
+				"6(?:011|5[0-9]{2})[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}|" +		// Discover
+				"3(?:0[0-5]|[68][0-9])[0-9][- ]{0,1}{0,1}[0-9]{6}[- ]{0,1}{0,1}[0-9]{4}|" +		// Diners Club
+				"35[0-9]{2}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}";		// JCB
 
-		// Master card
-		patterns.get("CREDIT CARD").add("(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)" +
-				"[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}");
-
-		// American Expression
-		patterns.get("CREDIT CARD").add("3[47][0-9]{2}[- ]{0,1}[0-9]{6}[- ]{0,1}[0-9]{5}");
-
-		// Discover
-		patterns.get("CREDIT CARD").add("6(?:011|5[0-9]{2})[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}");
-
-		// Diners Club
-		patterns.get("CREDIT CARD").add("3(?:0[0-5]|[68][0-9])[0-9][- ]{0,1}{0,1}[0-9]{6}[- ]{0,1}{0,1}[0-9]{4}");
-
-		// JCB
-		patterns.get("CREDIT CARD").add("35[0-9]{2}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}[- ]{0,1}[0-9]{4}");
+		patterns.get(DataType.CREDIT_CARD.toString()).add(patternsForCreditCard);
 
 		// Add supported file type
-		supported_file.add("txt");
-		supported_file.add("docx");
-		supported_file.add("doc");
-		supported_file.add("pdf");
-		supported_file.add("xlsx");
-		supported_file.add("csv");
+		supportedFileSet.add("txt");
+		supportedFileSet.add("docx");
+		supportedFileSet.add("doc");
+		supportedFileSet.add("pdf");
+		supportedFileSet.add("xlsx");
+		supportedFileSet.add("csv");
 
 		// Set start folder
-//		start_folders.add(new File("/Users/lieyongzou/Documents"));
+		startFolders.add(new File("/Users/lieyongzou/Documents"));
 
-		File[] files = File.listRoots();
-		for (File file : files) {
-			String drive = FileSystemView.getFileSystemView().getSystemDisplayName(file);
-
-			Matcher m = DRIVEPATTERN.matcher(drive);
-			if (m.find()) {
-				start_folders.add(new File(m.group(1) + "\\"));
-			}
-		}
+//		File[] files = File.listRoots();
+//		for (File file : files) {
+//			String drive = FileSystemView.getFileSystemView().getSystemDisplayName(file);
+//
+//			Matcher m = DRIVEPATTERN.matcher(drive);
+//			if (m.find()) {
+//				startFolders.add(new File(m.group(1) + "\\"));
+//			}
+//		}
 	}
 
 	public void setFilesizelimit(int size) {
@@ -99,24 +107,21 @@ public class Settings {
 		return fileSizeLimit;
 	}
 
-	public Set<File> getStart_folder() {
-		return start_folders;
+	public Set<File> getStartFolder() {
+		return startFolders;
 	}
 
-	public boolean isScan_sub_repo() {
-		return scan_sub_repo;
-	}
 	
 	public boolean isSupported(File file) {
 		int index = file.getName().lastIndexOf('.');
 		String suffix = file.getName().substring(index + 1);
 		
-		return supported_file.contains(suffix);
+		return supportedFileSet.contains(suffix);
 	}
 
 
-	public Set<String> getSupported_file() {
-		return supported_file;
+	public Set<String> getSupportedFileSet() {
+		return supportedFileSet;
 	}
 	
 	
@@ -147,7 +152,7 @@ public class Settings {
 	
 	public Map<String, Set<String>> getPatterns() {
 		if (mergedPatterns == null) {
-			mergedPatterns = new HashMap<>(patterns);
+			mergedPatterns = new ConcurrentHashMap<>(patterns);
 
 			for (Map.Entry<String, Set<String>> entry : customizedPatterns.entrySet()) {
 				if (mergedPatterns.containsKey(entry.getKey())) {

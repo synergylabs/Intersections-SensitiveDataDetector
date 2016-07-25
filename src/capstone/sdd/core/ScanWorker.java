@@ -40,9 +40,7 @@ public class ScanWorker implements Callable<Void> {
 			}
 				
 			if (file.isDirectory()) {
-				if (settings.isScan_sub_repo()) {	// The settings to scan sub folders
-					pool.submit(new ScanWorker(file, pool, listener));
-				}
+				pool.submit(new ScanWorker(file, pool, listener));
 			} else{
 				if (settings.isSupported(file) && file.length() <= settings.getFileSizeLimit()) {
 					listener.addTask(file);

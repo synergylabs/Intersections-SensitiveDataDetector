@@ -18,8 +18,8 @@ import java.util.concurrent.*;
 public class MainFrame {
 
     private final static String TITLE = "TScanner";
-    private final static int WINDOW_WIDTH = 450;
-    private final static int WINDOW_HEIGHT = 500;
+    private final static int WINDOWWIDTH = 450;
+    private final static int WINDOWHEIGHT = 500;
 
     private String id = "TestCMU";
 
@@ -45,10 +45,10 @@ public class MainFrame {
     private StatusPanel statusPanel = new StatusPanel();
 
 
-    JButton scan_btm = new JButton("Scan");
-    JButton stop_btm = new JButton("Stop");
-    JButton add_btm = new JButton("Settings");
-    JButton report_btm = new JButton("Report");
+    JButton scanButton = new JButton("Scan");
+    JButton stopButton = new JButton("Stop");
+    JButton addButton = new JButton("Settings");
+    JButton reportButton = new JButton("Report");
 
     // The time of some specific operation
     long scanStartTime = 0;
@@ -75,15 +75,15 @@ public class MainFrame {
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
-        mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+        mainPanel.setPreferredSize(new Dimension(WINDOWWIDTH, WINDOWHEIGHT));
 
         // Add button panel to frame
         buttonPanel.setLayout(new GridLayout(1, 4));
         buttonPanel.setBackground(Color.WHITE);
 
-        scan_btm.setFocusPainted(false);
-        scan_btm.setIcon(getImage("start.png"));
-        scan_btm.addActionListener(new ActionListener() {
+        scanButton.setFocusPainted(false);
+        scanButton.setIcon(getImage("start.png"));
+        scanButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Remove the old status panel and add new panel
@@ -95,9 +95,9 @@ public class MainFrame {
                 detailPanel.setVisible(false);
                 resultPanel.removeAll();
 
-                buttonPanel.remove(report_btm);
-                add_btm.setEnabled(false);
-                scan_btm.setEnabled(false);
+                buttonPanel.remove(reportButton);
+                addButton.setEnabled(false);
+                scanButton.setEnabled(false);
 
                 // init all data set
                 tasks = new ConcurrentHashMap<>();
@@ -107,16 +107,16 @@ public class MainFrame {
                 // Set start time
                 scanStartTime = System.currentTimeMillis();
 
-                for (String type : settings.getSupported_file()) {
+                for (String type : settings.getSupportedFileSet()) {
                     tasks.put(type, new HashSet<File>());
                 }
 
                 frame.pack();
 
                 pool = new CompletionExecutor(listener);
-                pool.setMode(0);
+                pool.setMode(CompletionExecutor.Mode.SCAN);
 
-                for (File folder : settings.getStart_folder()) {
+                for (File folder : settings.getStartFolder()) {
                     pool.submit(new ScanWorker(folder, pool, listener));
                 }
 
@@ -125,20 +125,20 @@ public class MainFrame {
 
 
 
-        stop_btm.setFocusPainted(false);
-        stop_btm.setIcon(getImage("stop.png"));
-        stop_btm.addActionListener(new ActionListener() {
+        stopButton.setFocusPainted(false);
+        stopButton.setIcon(getImage("stop.png"));
+        stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 pool.shutdownNow();
-                add_btm.setEnabled(true);
-                scan_btm.setEnabled(true);
+                addButton.setEnabled(true);
+                scanButton.setEnabled(true);
             }
         });
 
-        add_btm.setFocusPainted(false);
-        add_btm.setIcon(getImage("setting.png"));
-        add_btm.addActionListener(new ActionListener() {
+        addButton.setFocusPainted(false);
+        addButton.setIcon(getImage("setting.png"));
+        addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SettingPanel panel = new SettingPanel(listener);
@@ -146,9 +146,9 @@ public class MainFrame {
             }
         });
 
-        report_btm.setIcon(getImage("report.png"));
-        report_btm.setFocusPainted(false);
-        report_btm.addActionListener(new ActionListener() {
+        reportButton.setIcon(getImage("report.png"));
+        reportButton.setFocusPainted(false);
+        reportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new GroupWorker().execute();
@@ -157,9 +157,9 @@ public class MainFrame {
         });
 
         // Add two buttons to panel
-        buttonPanel.add(scan_btm);
-        buttonPanel.add(stop_btm);
-        buttonPanel.add(add_btm);
+        buttonPanel.add(scanButton);
+        buttonPanel.add(stopButton);
+        buttonPanel.add(addButton);
 
         // The panel to display results
         resultPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -258,11 +258,11 @@ public class MainFrame {
         // Get the time when matching all files
         matchStopTime = System.currentTimeMillis();
 
-        buttonPanel.add(report_btm);
+        buttonPanel.add(reportButton);
         buttonPanel.revalidate();
 
-        scan_btm.setEnabled(true);
-        add_btm.setEnabled(true);
+        scanButton.setEnabled(true);
+        addButton.setEnabled(true);
     }
 
     /**
@@ -302,7 +302,7 @@ public class MainFrame {
             }
 
             statusPanel.startMatch(totalTask);
-            pool.setMode(1);
+            pool.setMode(CompletionExecutor.Mode.MATCH);
 
             for (Set<File> files : tasks.values()) {
                 for (File file : files) {
@@ -350,7 +350,6 @@ public class MainFrame {
 
                 MainFrame.this.evalStopTime = System.currentTimeMillis();
 
-                pool.setMode(2);
                 pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap, path, listener, MainFrame.this.id,
                         MainFrame.this.scanStartTime, MainFrame.this.scanStopTime, MainFrame.this.matchStopTime, MainFrame.this.evalStartTime, MainFrame.this.evalStopTime));
 

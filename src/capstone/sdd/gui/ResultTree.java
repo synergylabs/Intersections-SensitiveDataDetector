@@ -1,18 +1,13 @@
 package capstone.sdd.gui;
 
-import com.sun.deploy.security.ValidationState;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by lieyongzou on 6/19/16.
@@ -26,26 +21,24 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ResultTree {
 
-    private static final String RIGHT_TEMPLATE = "<html><font color=green><b>%s</b></font></html>";
-    private static final String WRONG_TEMPLATE = "<html><font color=red><b>%s</b></font></html>";
+    private static final String RIGHTTEMPLATE = "<html><font color=green><b>%s</b></font></html>";
+    private static final String WRONGTEMPLATE = "<html><font color=red><b>%s</b></font></html>";
 
-    private static final String TYPE_PATTERN = "%s (0 / 0)";
-    private static final String TOTAL_PATTERN = "(.*?/ )\\d+";
-    private static final String COMPLETE_PATTERN = "(.*?\\()\\d+( /.*?)$";
+    private static final String TYPEPATTERN = "%s (0 / 0)";
+    private static final String TOTALPATTERN = "(.*?/ )\\d+";
+    private static final String COMPLETEPATTERN = "(.*?\\()\\d+( /.*?)$";
 
     // Name - root node of results
-    private Map<String, DefaultMutableTreeNode> result_node_dict = new HashMap<>();
+    private Map<String, DefaultMutableTreeNode> resultNodeMap = new HashMap<>();
 
     // data - [context, filepath]
-    private Map<String, List<List<String>>> detailed_result_dict = new HashMap<>();
-
-
+    private Map<String, List<List<String>>> resultMap = new HashMap<>();
 
     // The dataset contains all the data needs to be evaluate
-    private Set<String> target_dataset = new HashSet<>();
+    private Set<String> targetDataset = new HashSet<>();
 
     // The dataset contains all the correct data
-    private Set<String> correct_dataset = new HashSet<>();
+    private Set<String> correctDataset = new HashSet<>();
 
 
     private JTree tree;
@@ -56,7 +49,7 @@ public class ResultTree {
     public ResultTree(String type, GuiListener listener) {
         this.type = type;
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(String.format(TYPE_PATTERN, type));
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(String.format(TYPEPATTERN, type));
         tree = new JTree(root);
         tree.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         tree.setCellRenderer(new CustomizedRenderer());
@@ -78,13 +71,13 @@ public class ResultTree {
                     if (nodes.length == 2) {
 
                         String data = "";
-                        for (Map.Entry<String, DefaultMutableTreeNode> entry : result_node_dict.entrySet()) {
+                        for (Map.Entry<String, DefaultMutableTreeNode> entry : resultNodeMap.entrySet()) {
                             if (nodes[1] == entry.getValue()) {
                                 data = entry.getKey();
                             }
                         }
 
-                        listener.displayDataInfo(type, data, detailed_result_dict.get(data));
+                        listener.displayDataInfo(type, data, resultMap.get(data));
                     }
 
                     else if (nodes.length == 3) {
@@ -103,15 +96,15 @@ public class ResultTree {
      *
      */
     public int getRestDataNumber() {
-        return target_dataset.size();
+        return targetDataset.size();
     }
 
     public Set<String> getCorrectDataset() {
-        return correct_dataset;
+        return correctDataset;
     }
 
     public Map<String, List<List<String>>> getDetailedResults() {
-        return detailed_result_dict;
+        return resultMap;
     }
 
     public String getType() {
@@ -126,15 +119,15 @@ public class ResultTree {
      */
     public void addResult(String data, String context, File file) {
 
-        if (!result_node_dict.containsKey(data)) {
+        if (!resultNodeMap.containsKey(data)) {
             DefaultMutableTreeNode node = new DefaultMutableTreeNode(data);
-            result_node_dict.put(data, node);
+            resultNodeMap.put(data, node);
             ((DefaultMutableTreeNode)model.getRoot()).add(node);
 
-            detailed_result_dict.put(data, new ArrayList<>(2));
+            resultMap.put(data, new ArrayList<>(2));
         }
 
-        DefaultMutableTreeNode node = result_node_dict.get(data);
+        DefaultMutableTreeNode node = resultNodeMap.get(data);
         DefaultMutableTreeNode new_node = new DefaultMutableTreeNode(file.getAbsolutePath());
         node.add(new_node);
         model.reload();
@@ -142,10 +135,10 @@ public class ResultTree {
         List<String> list = new ArrayList<>();
         list.add(context);
         list.add(file.getAbsolutePath());
-        detailed_result_dict.get(data).add(list);
+        resultMap.get(data).add(list);
 
         // Add the data to the target set
-        target_dataset.add(data);
+        targetDataset.add(data);
         addTotalTag();
 
     }
@@ -163,19 +156,19 @@ public class ResultTree {
      *             false the data is wrong
      */
     public void setCorrectness(String data, boolean isCorrect) {
-        DefaultMutableTreeNode node = result_node_dict.get(data);
-        String text = isCorrect ? String.format(RIGHT_TEMPLATE, data) : String.format(WRONG_TEMPLATE, data);
+        DefaultMutableTreeNode node = resultNodeMap.get(data);
+        String text = isCorrect ? String.format(RIGHTTEMPLATE, data) : String.format(WRONGTEMPLATE, data);
         node.setUserObject(text);
         model.reload();
 
         // The data has been evaluated, remove it from target set
-        target_dataset.remove(data);
+        targetDataset.remove(data);
         addCompleteTag();
 
         if (isCorrect) {
-            correct_dataset.add(data);
-        } else if (correct_dataset.contains(data)) {
-            correct_dataset.remove(data);
+            correctDataset.add(data);
+        } else if (correctDataset.contains(data)) {
+            correctDataset.remove(data);
         }
     }
 
@@ -187,7 +180,7 @@ public class ResultTree {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
         String text = root.getUserObject().toString();
 
-        text = text.replaceAll(TOTAL_PATTERN, "$1" + result_node_dict.size());
+        text = text.replaceAll(TOTALPATTERN, "$1" + resultNodeMap.size());
         root.setUserObject(text);
         model.reload();
     }
@@ -199,7 +192,7 @@ public class ResultTree {
         DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
         String text = root.getUserObject().toString();
 
-        text = text.replaceAll(COMPLETE_PATTERN, "$1" + (result_node_dict.size() - target_dataset.size()) + "$2");
+        text = text.replaceAll(COMPLETEPATTERN, "$1" + (resultNodeMap.size() - targetDataset.size()) + "$2");
         root.setUserObject(text);
         model.reload();
     }
@@ -212,8 +205,8 @@ public class ResultTree {
             super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
             if (hasFocus) {
                 this.setFont(getFont().deriveFont(Font.BOLD + Font.ITALIC));
-                this.setBackgroundSelectionColor(null);
-                this.setBorderSelectionColor(null);
+//                this.setBackgroundSelectionColor(null);
+//                this.setBorderSelectionColor(null);
             } else {
                 this.setFont(getFont().deriveFont(Font.PLAIN));
             }

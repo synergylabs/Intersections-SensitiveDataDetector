@@ -5,6 +5,7 @@ package capstone.sdd.validator;
  */
 public class ValidatorFactory {
 
+
     public static Validator getValidator(String type) {
         switch (type) {
             case "CREDIT CARD":

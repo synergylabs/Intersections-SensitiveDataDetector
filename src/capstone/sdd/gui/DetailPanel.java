@@ -1,18 +1,13 @@
 package capstone.sdd.gui;
 
+import capstone.sdd.core.Utility;
 import capstone.sdd.parser.ParserFactory;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -22,9 +17,9 @@ import java.util.Set;
  */
 public class DetailPanel extends JPanel {
 
-    private final static int WINDOW_WIDTH = 400;
-    private final static int WINDOW_HEIGHT = 500;
-    private final static int TITLE_HEIGHT = 37;
+    private final static int WINDOWWIDTH = 400;
+    private final static int WINDOWHEIGHT = 500;
+    private final static int TITLEHEIGHT = 37;
 
     JFrame mainFrame;
     private GuiListener listener;
@@ -108,12 +103,12 @@ public class DetailPanel extends JPanel {
             DetailPanel.this.removeAll();
 
             DetailPanel.this.setLayout(new BorderLayout());
-            DetailPanel.this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+            DetailPanel.this.setPreferredSize(new Dimension(WINDOWWIDTH, WINDOWHEIGHT));
 
             JPanel titlePanel = new JPanel();
             titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
             titlePanel.setBackground(Color.white);
-            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, TITLE_HEIGHT));
+            titlePanel.setPreferredSize(new Dimension(WINDOWWIDTH, TITLEHEIGHT));
 
             JLabel title = new JLabel(type + " : " + data);
             title.setFont(new Font("Serif", Font.BOLD, 15));
@@ -228,11 +223,11 @@ public class DetailPanel extends JPanel {
             DetailPanel.this.removeAll();
 
             DetailPanel.this.setLayout(new BorderLayout());
-            DetailPanel.this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+            DetailPanel.this.setPreferredSize(new Dimension(WINDOWWIDTH, WINDOWHEIGHT));
 
             JPanel titlePanel = new JPanel();
             titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-            titlePanel.setPreferredSize(new Dimension(WINDOW_WIDTH, TITLE_HEIGHT));
+            titlePanel.setPreferredSize(new Dimension(WINDOWWIDTH, TITLEHEIGHT));
 
             JLabel title = new JLabel(file.getName());
             title.setFont(new Font("Serif", Font.BOLD, 15));
@@ -251,7 +246,7 @@ public class DetailPanel extends JPanel {
 
             try {
 
-                String content = ParserFactory.getContent(file);
+                String content = Utility.getContent(file);
 
                 doc.insertString(doc.getLength(), content, null);
 
