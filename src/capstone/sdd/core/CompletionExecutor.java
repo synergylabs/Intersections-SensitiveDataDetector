@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CompletionExecutor extends ThreadPoolExecutor {
 
     public enum Mode {
-        SCAN, MATCH;
+        SCAN, MATCH, REPORT;
     }
 
     // The number of tasks in the pool

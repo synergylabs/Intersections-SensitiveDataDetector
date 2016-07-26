@@ -21,8 +21,6 @@ public class MainFrame {
     private final static int WINDOWWIDTH = 450;
     private final static int WINDOWHEIGHT = 500;
 
-    private String id = "TestCMU";
-
     private JFrame frame;
     private GuiListener listener;
     private Settings settings = Settings.getInstance();
@@ -61,7 +59,16 @@ public class MainFrame {
     public MainFrame() {
 
         // Ask for the random code from MTurk
+        if (Utility.getWorkId() == null) {
+            String workid = JOptionPane.showInputDialog(frame, "Please input your worker id:");
 
+            if (workid.length() == 0) {
+                JOptionPane.showMessageDialog(frame, "Worker id cannot be none");
+                System.exit(0);
+            }
+
+            Utility.setWorkId(workid);
+        }
 
         // init task map
         listener = new GuiListener(this);
@@ -82,7 +89,7 @@ public class MainFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         scanButton.setFocusPainted(false);
-        scanButton.setIcon(getImage("start.png"));
+        scanButton.setIcon(Utility.getImage("start.png"));
         scanButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -126,7 +133,7 @@ public class MainFrame {
 
 
         stopButton.setFocusPainted(false);
-        stopButton.setIcon(getImage("stop.png"));
+        stopButton.setIcon(Utility.getImage("stop.png"));
         stopButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -137,7 +144,7 @@ public class MainFrame {
         });
 
         addButton.setFocusPainted(false);
-        addButton.setIcon(getImage("setting.png"));
+        addButton.setIcon(Utility.getImage("setting.png"));
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -146,7 +153,7 @@ public class MainFrame {
             }
         });
 
-        reportButton.setIcon(getImage("report.png"));
+        reportButton.setIcon(Utility.getImage("report.png"));
         reportButton.setFocusPainted(false);
         reportButton.addActionListener(new ActionListener() {
             @Override
@@ -274,22 +281,6 @@ public class MainFrame {
         }
     }
 
-    /**
-     * A method to get image icon from file
-     * @param name the name of image
-     * @return the image icon
-     */
-    private ImageIcon getImage(String name) {
-        ImageIcon imageIcon = null;
-        try {
-            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        return imageIcon;
-    }
 
     class MatchSwingWorker extends SwingWorker<Void, Void> {
 
@@ -350,7 +341,8 @@ public class MainFrame {
 
                 MainFrame.this.evalStopTime = System.currentTimeMillis();
 
-                pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap, path, listener, MainFrame.this.id,
+                pool.setMode(CompletionExecutor.Mode.REPORT);
+                pool.submit(new ReportGenerator(fileMap, tasks, correctDatasetMap, detailedDatasetMap, path, listener, Utility.getWorkId(),
                         MainFrame.this.scanStartTime, MainFrame.this.scanStopTime, MainFrame.this.matchStopTime, MainFrame.this.evalStartTime, MainFrame.this.evalStopTime));
 
             }

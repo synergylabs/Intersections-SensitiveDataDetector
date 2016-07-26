@@ -11,8 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import capstone.sdd.gui.GuiListener;
-import capstone.sdd.parser.Parser;
-import capstone.sdd.parser.ParserFactory;
 import capstone.sdd.validator.Validator;
 import capstone.sdd.validator.ValidatorFactory;
 
@@ -23,7 +21,7 @@ import capstone.sdd.validator.ValidatorFactory;
 public class MatchWorker implements Callable<Void> {
 
 	// Get the leading and tailing context of sensitive data
-	private static final String CONTEXT_PATTERN = ".{0,20}[\\D](%s)[\\D].{0,20}";
+	private static final String CONTEXT_PATTERN = ".{0,20}(?<!\\d|\\.|e|E|-)(%s)(?!\\d|\\.|e|E|-).{0,20}";
 
 	private File file;
 

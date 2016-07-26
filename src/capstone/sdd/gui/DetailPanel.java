@@ -165,7 +165,7 @@ public class DetailPanel extends JPanel {
 
             JButton rightButton = new JButton("Yes");
             rightButton.setFocusPainted(false);
-            rightButton.setIcon(getImage("correct.png"));
+            rightButton.setIcon(Utility.getImage("correct.png"));
             rightButton.addActionListener(new ActionListener() {
 
                 @Override
@@ -176,7 +176,7 @@ public class DetailPanel extends JPanel {
 
             JButton wrongButton = new JButton("No");
             wrongButton.setFocusPainted(false);
-            wrongButton.setIcon(getImage("wrong.png"));
+            wrongButton.setIcon(Utility.getImage("wrong.png"));
             wrongButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -267,23 +267,6 @@ public class DetailPanel extends JPanel {
 
             return null;
         }
-    }
-
-    /**
-     * A method to get image icon from file
-     * @param name the name of image
-     * @return the image icon
-     */
-    private ImageIcon getImage(String name) {
-        ImageIcon imageIcon = null;
-        try {
-            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        return imageIcon;
     }
 
 }

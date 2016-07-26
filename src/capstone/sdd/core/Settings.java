@@ -86,17 +86,17 @@ public class Settings {
 		supportedFileSet.add("csv");
 
 		// Set start folder
-		startFolders.add(new File("/Users/lieyongzou/Documents"));
+//		startFolders.add(new File("/Users/lieyongzou/Documents"));
 
-//		File[] files = File.listRoots();
-//		for (File file : files) {
-//			String drive = FileSystemView.getFileSystemView().getSystemDisplayName(file);
-//
-//			Matcher m = DRIVEPATTERN.matcher(drive);
-//			if (m.find()) {
-//				startFolders.add(new File(m.group(1) + "\\"));
-//			}
-//		}
+		File[] files = File.listRoots();
+		for (File file : files) {
+			String drive = FileSystemView.getFileSystemView().getSystemDisplayName(file);
+
+			Matcher m = DRIVEPATTERN.matcher(drive);
+			if (m.find()) {
+				startFolders.add(new File(m.group(1) + "\\"));
+			}
+		}
 	}
 
 	public void setFilesizelimit(int size) {

@@ -23,7 +23,7 @@ public class TxtParser implements Parser {
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				sb.append(line);
-				sb.append("  \n");
+				sb.append("\n");
 			}
 			
 			reader.close();

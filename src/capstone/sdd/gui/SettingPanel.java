@@ -1,6 +1,7 @@
 package capstone.sdd.gui;
 
 import capstone.sdd.core.Settings;
+import capstone.sdd.core.Utility;
 
 import javax.swing.*;
 import java.awt.*;
@@ -57,7 +58,7 @@ public class SettingPanel extends JDialog{
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
 
         JButton addButton = new JButton();
-        addButton.setIcon(getImage("add.png"));
+        addButton.setIcon(Utility.getImage("add.png"));
         addButton.setFocusPainted(false);
 
         addButton.addActionListener(new ActionListener() {
@@ -76,7 +77,7 @@ public class SettingPanel extends JDialog{
         });
 
         JButton removeButton = new JButton();
-        removeButton.setIcon(getImage("remove.png"));
+        removeButton.setIcon(Utility.getImage("remove.png"));
         removeButton.setFocusPainted(false);
 
         removeButton.addActionListener(new ActionListener() {
@@ -96,8 +97,6 @@ public class SettingPanel extends JDialog{
 
                     model.removeElementAt(jList.getSelectedIndex());
                 }
-
-
             }
         });
 
@@ -204,29 +203,37 @@ public class SettingPanel extends JDialog{
         sizePanel.add(radio3, c);
 
         tabbedPane.add("File Size", sizePanel);
+
+        // The page to modify the worker id
+        JPanel workerPanel = new JPanel();
+        workerPanel.setLayout(new GridBagLayout());
+
+        workerPanel.add(new JLabel("Worker ID:"));
+
+        JTextField input = new JTextField(Utility.getWorkId(), 10);
+        workerPanel.add(input);
+
+        JButton workerButton = new JButton("OK");
+        workerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String workid = input.getText();
+
+                if (Utility.setWorkId(workid)) {
+                    JOptionPane.showMessageDialog(SettingPanel.this, "The worker id has been set to \"" + workid + "\"");
+                } else {
+                    JOptionPane.showMessageDialog(SettingPanel.this, "The worker id is illegal");
+                }
+            }
+        });
+
+        workerPanel.add(workerButton);
+
+        tabbedPane.add("worker id", workerPanel);
+
         this.add(tabbedPane);
         pack();
 
     }
-
-
-    /**
-     * A method to get image icon from file
-     * @param name the name of image
-     * @return the image icon
-     */
-    private ImageIcon getImage(String name) {
-        ImageIcon imageIcon = null;
-        try {
-            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        return imageIcon;
-    }
-
-
 
 }

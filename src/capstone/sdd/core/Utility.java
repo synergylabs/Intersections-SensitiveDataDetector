@@ -1,9 +1,12 @@
 package capstone.sdd.core;
 
+import capstone.sdd.main.Main;
 import capstone.sdd.parser.Parser;
 import capstone.sdd.parser.ParserFactory;
 
-import java.io.File;
+import javax.swing.*;
+import java.io.*;
+import java.net.URL;
 
 /**
  * Created by lieyongzou on 7/23/16.
@@ -72,5 +75,72 @@ public class Utility {
         // Get the parser from factory
         Parser parser = ParserFactory.getParser(getExtension(file.getName()));
         return " " + parser.parse(file) + " ";
+    }
+
+
+    /**
+     * A method to check whether the workid has been set
+     * @return the workid
+     */
+    public static String getWorkId() {
+
+        // Read the workid from file
+//        File file = new File(Main.class.getClassLoader().getResource("workid.txt").getPath());
+
+        File file = new File("./workid.txt");
+        if (!file.exists() || file.isDirectory()) {
+            return null;
+        }
+
+        String workid = "";
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            workid = reader.readLine();
+
+            reader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return workid;
+    }
+
+    /**
+     * A method to set the work id and write to the file
+     * @param workId the work id
+     * @return true: the work id has been set
+     *         false: the work id has not been set
+     */
+    public static boolean setWorkId(String workId) {
+
+//        File file = new File(Main.class.getClassLoader().getResource("workid.txt").getPath());
+        File file = new File("./workid.txt");
+
+        // Write the workid to file
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            writer.write(workId);
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+
+    public static ImageIcon getImage(String name) {
+        ImageIcon imageIcon = null;
+        try {
+            imageIcon = new ImageIcon(Utility.class.getClassLoader().getResource(name));
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return imageIcon;
     }
 }

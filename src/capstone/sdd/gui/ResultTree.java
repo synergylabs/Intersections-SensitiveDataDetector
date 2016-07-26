@@ -1,5 +1,7 @@
 package capstone.sdd.gui;
 
+import capstone.sdd.core.Utility;
+
 import javax.swing.*;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -205,34 +207,17 @@ public class ResultTree {
             super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
             if (hasFocus) {
                 this.setFont(getFont().deriveFont(Font.BOLD + Font.ITALIC));
-//                this.setBackgroundSelectionColor(null);
-//                this.setBorderSelectionColor(null);
+                this.setBackgroundSelectionColor(null);
+                this.setBorderSelectionColor(null);
             } else {
                 this.setFont(getFont().deriveFont(Font.PLAIN));
             }
 
             if (!leaf) {
-                this.setIcon(getImage("data.png"));
+                this.setIcon(Utility.getImage("data.png"));
             }
             return this;
         }
-    }
-
-    /**
-     * A method to get image icon from file
-     * @param name the name of image
-     * @return the image icon
-     */
-    private ImageIcon getImage(String name) {
-        ImageIcon imageIcon = null;
-        try {
-            imageIcon = new ImageIcon(this.getClass().getClassLoader().getResource(name));
-
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        return imageIcon;
     }
 
 
